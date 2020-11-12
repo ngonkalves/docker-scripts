@@ -117,12 +117,12 @@ terminal|console)
         exit $?
         ;;
 log)
-        echo -e "Acessing logs $CONTAINER\n"
+        echo -e "Accessing logs $CONTAINER\n"
         docker logs $CONTAINER
         exit $?
         ;;
 logf)
-        echo -e "Acessing logs $CONTAINER\n"
+        echo -e "Accessing logs $CONTAINER\n"
         docker logs -f $CONTAINER
         exit $?
         ;;
