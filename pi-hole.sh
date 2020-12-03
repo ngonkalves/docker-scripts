@@ -27,7 +27,7 @@ start)
         echo -e "Starting container $CONTAINER\n"
         docker start $CONTAINER
         printf 'Starting up pihole container '
-        for i in $(seq 1 30); do
+        for i in $(seq 1 60); do
             if [ "$(docker inspect -f "{{.State.Health.Status}}" $CONTAINER)" == "healthy" ] ; then
                 printf ' OK'
                 if docker logs $CONTAINER 2> /dev/null | grep 'password:'; then
