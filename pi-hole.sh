@@ -36,13 +36,9 @@ start)
                 sleep 3
                 printf '.'
             fi
-
-            if [ $i -eq 20 ] ; then
-                echo -e "\nTimed out waiting for Pi-hole start, consult check your container logs for more info (\`$0 log\`)"
-                exit 1
-            fi
         done;
-        exit $?
+        echo -e "\nTimed out waiting for Pi-hole start, check your container logs for more info (\`$0 log\`)"
+        exit 1
         ;;
 stop)
         echo -e "Stopping container $CONTAINER\n"
