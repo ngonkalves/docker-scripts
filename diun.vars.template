@@ -1,0 +1,14 @@
+DEBUG=0
+CONTAINER="diun"
+IMAGE="crazymax/diun:latest"
+RESTART_MODE="unless-stopped"
+TZ="Europe/Lisbon"
+LOG_LEVEL=info
+LOG_JSON=false
+WATCH_WORKERS=10
+WATCH_SCHEDULE="0 */6 * * *"
+PROVIDERS_DOCKER=true
+PROVIDERS_DOCKER_WATCHSTOPPED=true
+ENABLE=true
+WATCH_REPO=true
+DIR_DATA="$CURRENT_DIR/volumes/$CONTAINER/data"
