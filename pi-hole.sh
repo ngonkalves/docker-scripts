@@ -9,18 +9,14 @@
 # https://hugo-ma-alves.github.io/2019-03-22-pihole-vodafone/
 #################################################################################
 
-CONTAINER="pihole"
-CONTAINER_IMAGE="pihole/pihole:latest"
-CONTAINER_RESTART_MODE="unless-stopped"
-SERVER_IPV4="192.168.1.10"
-SERVER_IPV6="2001:818:e303:ac00:81:a5ff:fea6:88a1"
-IPV6="true"
-DNS_SERVER="1.1.1.1"
-DNS_SERVER1="1.1.1.1"
-DNS_SERVER2="1.0.0.1"
-ADMIN_EMAIL="email@domain.com"
-TIMEZONE="Europe/Lisbon"
-WEBPASSWORD="YourPasswordHere"
+set -e
+
+CURRENT_DIR=`pwd`
+CURRENT_FILE=`basename "${0}"`
+FILE_VARS="${CURRENT_FILE%%.*}.vars"
+
+[[ -e $FILE_VARS ]] && source $FILE_VARS && [[ $DEBUG == 1 ]] && echo "Variables loaded from: $FILE_VARS"
+[[ ! -e $FILE_VARS ]] && echo -e "Variables file doesn't exist: $FILE_VARS\n\nRename the $FILE_VARS.template to $FILE_VARS as starting point.\n" && exit 1
 
 case "$1" in
 start)
