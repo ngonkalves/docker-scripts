@@ -1,5 +1,6 @@
 CONTAINER="wireguard"
-CONTAINER_IMAGE="linuxserver/wireguard:latest"
+CONTAINER_IMAGE="ngonkalves/docker-wireguard"
+#CONTAINER_IMAGE="linuxserver/wireguard:latest"
 CONTAINER_RESTART_MODE="unless-stopped"
 TZ="Europe/Lisbon"
 # user id
