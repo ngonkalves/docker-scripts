@@ -1,5 +1,5 @@
 CONTAINER="wireguard"
-CONTAINER_IMAGE="ghcr.io/linuxserver/wireguard:arm32v7-latest"
+CONTAINER_IMAGE="linuxserver/wireguard:latest"
 CONTAINER_RESTART_MODE="unless-stopped"
 TZ="Europe/Lisbon"
 # user id
@@ -8,9 +8,10 @@ PUID=1000
 PGID=995
 SERVERURL="mydomain.duckdns.org"
 SERVERPORT="51820"
-PEERS="myPhone,myPC"
+PEERS="myPhone"
 PEERDNS="1.1.1.1"
 INTERNAL_SUBNET="10.10.10.0"
 ALLOWEDIPS="0.0.0.0/0"
 DIR_CONFIG="$CURRENT_DIR/volumes/wireguard/config"
-DIR_MODULES="$CURRENT_DIR/volumes/wireguard/modules"
+DIR_MODULES="/lib/modules"
+DIR_USR_SRC="/usr/src"

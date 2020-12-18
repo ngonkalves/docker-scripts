@@ -68,14 +68,15 @@ create|build)
             -e SERVERURL=$SERVERURL \
             -e SERVERPORT=$SERVERPORT \
             -e PEERS=$PEERS \
-            -e PEERSDNS=$PEERSDNS \
+            -e PEERDNS=$PEERDNS \
             -e INTERNAL_SUBNET=$INTERNAL_SUBNET \
             -e ALLOWEDIPS=$ALLOWEDIPS \
             -v $DIR_CONFIG:/config \
             -v $DIR_MODULES:/lib/modules \
+            -v $DIR_USR_SRC:/usr/src \
             --restart="$CONTAINER_RESTART_MODE" \
             --sysctl="net.ipv4.conf.all.src_valid_mark=1" \
-            -p $SERVERPORT:$SERVERPORT \
+            -p $SERVERPORT:51820/udp \
             "$CONTAINER_IMAGE"
         exit $?
         ;;
@@ -91,6 +92,13 @@ users)
         echo -e "Execute command for container $CONTAINER\n"
         echo -e "---------------------------------\n"
         docker exec -it $CONTAINER /app/show-peer ${PEERS/,/ }
+        exit $?
+        ;;
+user)
+        echo -e "---------------------------------\n"
+        echo -e "Execute command for container $CONTAINER\n"
+        echo -e "---------------------------------\n"
+        docker exec -it $CONTAINER /app/show-peer ${2-}
         exit $?
         ;;
 recreate|rebuild)
