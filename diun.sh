@@ -59,7 +59,7 @@ create|build)
 
         docker create \
             --name="$CONTAINER" \
-            -e "TZ=$TZ" \
+            -e "TZ=$TIMEZONE" \
             -e "LOG_LEVEL=$LOG_LEVEL" \
             -e "LOG_JSON=$LOG_JSON" \
             -e "DIUN_WATCH_WORKERS=$WATCH_WORKERS" \

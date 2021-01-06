@@ -1,7 +1,7 @@
 CONTAINER="wireguard"
 CONTAINER_IMAGE="ngonkalves/wireguard:v0.1"
 CONTAINER_RESTART_MODE="unless-stopped"
-TZ="Europe/Lisbon"
+TIMEZONE="Europe/Lisbon"
 # user id
 PUID=1000
 # docker group id
