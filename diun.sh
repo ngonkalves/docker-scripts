@@ -4,8 +4,11 @@
 # https://github.com/linuxserver/docker-wireguard
 #################################################################################
 
+SCRIPT=`realpath $0`
+SCRIPTPATH=`dirname $SCRIPT`
+
 # include common functions
-source .common-functions
+source $SCRIPTPATH/.common-functions
 
 # to abort the script if any command returns a failure (nonzero) status
 set -e
@@ -66,6 +69,8 @@ create|build)
             -e "DIUN_WATCH_SCHEDULE=$WATCH_SCHEDULE" \
             -e "DIUN_PROVIDERS_DOCKER=$PROVIDERS_DOCKER" \
             -e "DIUN_PROVIDERS_DOCKER_WATCHSTOPPED=$PROVIDERS_DOCKER_WATCHSTOPPED" \
+            -e "DIUN_NOTIF_TELEGRAM_TOKEN=$TELEGRAM_TOKEN" \
+            -e "DIUN_NOTIF_TELEGRAM_CHATIDS=$TELEGRAM_CHATIDS" \
             -v $DIR_DATA:/data \
             -v "/var/run/docker.sock:/var/run/docker.sock" \
             -l "diun.enable=$ENABLE" \

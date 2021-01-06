@@ -9,8 +9,11 @@
 # https://hugo-ma-alves.github.io/2019-03-22-pihole-vodafone/
 #################################################################################
 
+SCRIPT=`realpath $0`
+SCRIPTPATH=`dirname $SCRIPT`
+
 # include common functions
-source .common-functions
+source $SCRIPTPATH/.common-functions
 
 # to abort the script if any command returns a failure (nonzero) status
 set -e
