@@ -105,8 +105,8 @@ recreate|rebuild)
         echo -e "---------------------------------\n"
         echo -e "Rebuilding container $CONTAINER\n"
         echo -e "---------------------------------\n"
-        $0 stop &> /dev/null || echo "Container doesn't exist"
-        $0 remove &> /dev/null || echo "Container doesn't exist"
+        $0 stop &> /dev/null || echo "Container $CONTAINER doesn't exist"
+        $0 remove &> /dev/null || echo "Container $CONTAINER doesn't exist"
         $0 pull
         $0 create
         echo -e "---------------------------------\n"
