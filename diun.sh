@@ -72,7 +72,7 @@ create|build)
             -e "DIUN_NOTIF_TELEGRAM_TOKEN=$TELEGRAM_TOKEN" \
             -e "DIUN_NOTIF_TELEGRAM_CHATIDS=$TELEGRAM_CHATIDS" \
             -v $DIR_DATA:/data \
-            -v "/var/run/docker.sock:/var/run/docker.sock" \
+            -v "/var/run/docker.sock:/var/run/docker.sock:ro" \
             -l "diun.enable=$ENABLE" \
             -l "diun.watch_repo=$WATCH_REPO" \
             --restart="$RESTART_MODE" \
