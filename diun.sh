@@ -52,6 +52,7 @@ remove)
         echo -e "---------------------------------\n"
         echo -e "Remove container $CONTAINER\n"
         echo -e "---------------------------------\n"
+        $0 stop
         docker container rm $CONTAINER
         exit $?
         ;;
@@ -69,6 +70,7 @@ create|build)
             -e "DIUN_WATCH_SCHEDULE=$WATCH_SCHEDULE" \
             -e "DIUN_PROVIDERS_DOCKER=$PROVIDERS_DOCKER" \
             -e "DIUN_PROVIDERS_DOCKER_WATCHSTOPPED=$PROVIDERS_DOCKER_WATCHSTOPPED" \
+            -e "DIUN_PROVIDERS_DOCKER_WATCHBYDEFAULT=$PROVIDERS_DOCKER_WATCHBYDEFAULT" \
             -e "DIUN_NOTIF_TELEGRAM_TOKEN=$TELEGRAM_TOKEN" \
             -e "DIUN_NOTIF_TELEGRAM_CHATIDS=$TELEGRAM_CHATIDS" \
             -v $DIR_DATA:/data \
