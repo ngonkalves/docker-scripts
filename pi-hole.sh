@@ -9,16 +9,15 @@
 # https://hugo-ma-alves.github.io/2019-03-22-pihole-vodafone/
 #################################################################################
 
+# include common functions
+source .common-functions
+
+# to abort the script if any command returns a failure (nonzero) status
 set -e
+# script will exit with error when variable not set
+set -u # or set -o nounset
 
-CURRENT_DIR=`pwd`
-CURRENT_FILE=`basename "${0}"`
-FILE_VARS="${CURRENT_FILE%%.*}.vars"
-
-[[ -e $FILE_VARS ]] && source $FILE_VARS && [[ $DEBUG == 1 ]] && echo "Variables loaded from: $FILE_VARS"
-[[ ! -e $FILE_VARS ]] && echo -e "Variables file doesn't exist: $FILE_VARS\n\nRename the $FILE_VARS.template to $FILE_VARS as starting point.\n" && exit 1
-
-case "$1" in
+case "${1-}" in
 start)
         echo -e "Starting container $CONTAINER\n"
         docker start $CONTAINER
