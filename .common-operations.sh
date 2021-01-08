@@ -56,10 +56,12 @@ recreate|rebuild)
         $0 remove &> /dev/null || echo "Container doesn't exist"
         $0 pull
         $0 create
-        $0 start
         echo -e "---------------------------------\n"
         echo -e "---------------------------------\n"
         docker container ls -a -f name=$CONTAINER
+        echo -e "---------------------------------\n"
+        echo -e "---------------------------------\n"
+        $0 start
         exit $?
         ;;
 terminal|console)
