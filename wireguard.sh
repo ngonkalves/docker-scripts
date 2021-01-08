@@ -73,9 +73,9 @@ create|build)
             -e PEERDNS=$PEERDNS \
             -e INTERNAL_SUBNET=$INTERNAL_SUBNET \
             -e ALLOWEDIPS=$ALLOWEDIPS \
-            -v $DIR_CONFIG:/config \
-            -v $DIR_MODULES:/lib/modules \
-            -v $DIR_USR_SRC:/usr/src \
+            -v $VOL_CONFIG:/config \
+            -v $VOL_MODULES:/lib/modules \
+            -v $VOL_USR_SRC:/usr/src \
             --restart="$CONTAINER_RESTART_MODE" \
             --sysctl="net.ipv4.conf.all.src_valid_mark=1" \
             -p $SERVERPORT:51820/udp \

@@ -75,7 +75,7 @@ create|build)
         docker create \
             --name="$CONTAINER" \
             -e TZ="$TIMEZONE" \
-            -v $OVPN_DATA:/etc/openvpn \
+            -v $VOL_ETC_OPENVPN:/etc/openvpn \
             --privileged \
             --restart="$CONTAINER_RESTART_MODE" \
             --sysctl net.ipv6.conf.all.disable_ipv6=1 \

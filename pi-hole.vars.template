@@ -10,4 +10,5 @@ DNS_SERVER2="1.0.0.1"
 ADMIN_EMAIL="email@domain.com"
 TIMEZONE="Europe/Lisbon"
 WEBPASSWORD="YourPasswordHere"
-
+VOL_ETC_DNSMASQ="$CURRENT_DIR/volumes/$CONTAINER/etc-dnsmasq.d"
+VOL_ETC_PIHOLE="$CURRENT_DIR/volumes/$CONTAINER/etc-pihole"

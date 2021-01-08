@@ -77,8 +77,8 @@ create|build)
             -e DNS2="$DNS_SERVER2" \
             -e ADMIN_EMAIL="$ADMIN_EMAIL" \
             -e IPv6="$IPV6" \
-            -v pihole:/etc/pihole \
-            -v pihole-dnsmasq:/etc/dnsmasq.d \
+            -v $VOL_ETC_PIHOLE:/etc/pihole \
+            -v $VOL_ETC_DNSMASQ:/etc/dnsmasq.d \
             --net=host \
             --dns="$SERVER_IPV4" \
             --dns="$DNS_SERVER" \
