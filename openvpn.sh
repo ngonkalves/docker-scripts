@@ -137,21 +137,12 @@ retrieve-client-config)
 *)
         # include common operations
         source $SCRIPTPATH/.common-operations.sh
-        echo -e "
-        Usage: $0
-                                 start | stop
-                                 pull
-                                 restart
-                                 remove
-                                 create | recreate
-                                 generate-client | generate-client-nopass
-                                 revoke-client | revoke-client-remove
-                                 retrieve-client-config
+        echo -e "\t\t\t\t----------------------------------------
+                                 init
                                  fix-permissions
-                                 terminal
-                                 log
-                                 logf
-                                 status"
+                                 generate-client-nopass | generate-client
+                                 revoke-client-remove | revoke-client
+                                 retrieve-client-config"
         exit 2
         ;;
 esac

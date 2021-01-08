@@ -60,16 +60,9 @@ user)
 *)
         # include common operations
         source $SCRIPTPATH/.common-operations.sh
-        echo -e "
-        Usage: $0
-                                 start | stop | restart
-                                 pull
-                                 remove
-                                 create | recreate
-                                 terminal | console
-                                 log
-                                 logf
-                                 status"
+        echo -e "\t\t\t\t----------------------------------------
+                                 users
+                                 user [username]"
         exit 2
         ;;
 esac

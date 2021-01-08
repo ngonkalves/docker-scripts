@@ -17,13 +17,6 @@ stop)
         docker stop $CONTAINER
         exit $?
         ;;
-pull)
-        echo -e "---------------------------------\n"
-        echo -e "Pulling container image $IMAGE\n"
-        echo -e "---------------------------------\n"
-        docker pull $IMAGE
-        exit $?
-        ;;
 restart)
         echo -e "---------------------------------\n"
         echo -e "Restarting container $CONTAINER\n"
@@ -39,11 +32,11 @@ remove)
         docker container rm $CONTAINER
         exit $?
         ;;
-uname)
+pull)
         echo -e "---------------------------------\n"
-        echo -e "Execute command for container $CONTAINER\n"
+        echo -e "Pulling container image $IMAGE\n"
         echo -e "---------------------------------\n"
-        docker exec -it $CONTAINER uname -a
+        docker pull $IMAGE
         exit $?
         ;;
 recreate|rebuild)
@@ -65,6 +58,13 @@ terminal|console)
         echo -e "Accessing terminal $CONTAINER\n"
         echo -e "---------------------------------\n"
         docker exec -it $CONTAINER /bin/sh
+        exit $?
+        ;;
+uname)
+        echo -e "---------------------------------\n"
+        echo -e "Execute command for container $CONTAINER\n"
+        echo -e "---------------------------------\n"
+        docker exec -it $CONTAINER uname -a
         exit $?
         ;;
 log)
@@ -89,6 +89,16 @@ status)
         exit $?
         ;;
 *)
-        echo to be defined...
+        echo -e "
+        Usage: $0
+                                 start | stop | restart
+                                 remove
+                                 pull
+                                 create | recreate
+                                 terminal | console
+                                 uname
+                                 log
+                                 logf
+                                 status"
         ;;
 esac;
