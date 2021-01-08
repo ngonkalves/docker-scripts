@@ -12,8 +12,8 @@
 SCRIPT=`realpath $0`
 SCRIPTPATH=`dirname $SCRIPT`
 
-# include common functions
-source $SCRIPTPATH/.common-functions
+# include init
+source $SCRIPTPATH/.common-init.sh
 
 # to abort the script if any command returns a failure (nonzero) status
 set -e
@@ -76,7 +76,7 @@ chpasswd)
         ;;
 *)
         # include common operations
-        source $SCRIPTPATH/.common-operations
+        source $SCRIPTPATH/.common-operations.sh
         echo -e "Usage: $0 {start|stop|pull|restart|remove|create|recreate|chpasswd|terminal|log|logf|status}\n"
         exit 2
         ;;
