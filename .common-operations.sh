@@ -39,6 +39,15 @@ pull)
         docker pull $IMAGE
         exit $?
         ;;
+cp)
+        echo -e "---------------------------------\n"
+        echo -e "Copying from container $CONTAINER\n"
+        echo -e "---------------------------------\n"
+        [ -z ${2+x} ] && echo "source path not defined" && exit 1
+        [ -z ${3+x} ] && echo "target path not defined" && exit 1
+        docker cp "$CONTAINER":"$2" "$3"
+        exit $?
+        ;;
 recreate|rebuild)
         echo -e "---------------------------------\n"
         echo -e "Rebuilding container $CONTAINER\n"
@@ -93,9 +102,10 @@ status)
         Usage: $0
                                  start | stop | restart
                                  remove
-                                 pull
                                  create | recreate
                                  terminal | console
+                                 pull
+                                 cp [source_path] [target_path]
                                  uname
                                  log
                                  logf
