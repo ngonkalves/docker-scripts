@@ -42,28 +42,6 @@ start)
         echo -e "\nTimed out waiting for Pi-hole start, check your container logs for more info (\`$0 log\`)"
         exit 1
         ;;
-stop)
-        echo -e "Stopping container $CONTAINER\n"
-        docker stop $CONTAINER
-        exit $?
-        ;;
-pull)
-        echo -e "Pulling container image $CONTAINER_IMAGE\n"
-        docker pull $CONTAINER_IMAGE
-        exit $?
-        ;;
-restart)
-        echo -e "Restarting container $CONTAINER\n"
-        docker restart $CONTAINER
-        # $0 stop
-        # $0 start
-        exit $?
-        ;;
-remove)
-        echo -e "Remove container $CONTAINER\n"
-        docker container rm $CONTAINER
-        exit $?
-        ;;
 create|build)
         echo -e "Creating container $CONTAINER\n"
 
@@ -91,40 +69,14 @@ create|build)
             #-p 53:53/udp \
         exit $?
         ;;
-recreate|rebuild)
-        echo -e "Rebuilding container $CONTAINER\n"
-        $0 stop &> /dev/null || echo "Container doesn't exist"
-        $0 remove &> /dev/null || echo "Container doesn't exist"
-        $0 pull
-        $0 create
-        $0 start
-        exit $?
-        ;;
 chpasswd)
         echo -e "Changing admin password for $CONTAINER\n"
         docker exec -it $CONTAINER pihole -a -p
         exit $?
         ;;
-terminal|console)
-        echo -e "Accessing terminal $CONTAINER\n"
-        docker exec -it $CONTAINER /bin/bash
-        exit $?
-        ;;
-log)
-        echo -e "Accessing logs $CONTAINER\n"
-        docker logs $CONTAINER
-        exit $?
-        ;;
-logf)
-        echo -e "Accessing logs $CONTAINER\n"
-        docker logs -f $CONTAINER
-        exit $?
-        ;;
-status)
-        docker ps -a -f name=$CONTAINER
-        exit $?
-        ;;
 *)
+        # include common operations
+        source $SCRIPTPATH/.common-operations
         echo -e "Usage: $0 {start|stop|pull|restart|remove|create|recreate|chpasswd|terminal|log|logf|status}\n"
         exit 2
         ;;

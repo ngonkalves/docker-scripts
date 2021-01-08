@@ -18,44 +18,6 @@ set -u # or set -o nounset
 # due to set -u we need to define a default value of empty when no arguments are passed
 # https://stackoverflow.com/questions/43707685/set-u-nounset-vs-checking-whether-i-have-arguments
 case "${1-}" in
-start)
-        echo -e "---------------------------------\n"
-        echo -e "Starting container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        docker start $CONTAINER
-        printf '\nStarting up %s container\n\n' "$CONTAINER"
-        $0 logf
-        exit $?
-        ;;
-stop)
-        echo -e "---------------------------------\n"
-        echo -e "Stopping container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        docker stop $CONTAINER
-        exit $?
-        ;;
-pull)
-        echo -e "---------------------------------\n"
-        echo -e "Pulling container image $IMAGE\n"
-        echo -e "---------------------------------\n"
-        docker pull $IMAGE
-        exit $?
-        ;;
-restart)
-        echo -e "---------------------------------\n"
-        echo -e "Restarting container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        docker restart $CONTAINER
-        exit $?
-        ;;
-remove)
-        echo -e "---------------------------------\n"
-        echo -e "Remove container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        $0 stop
-        docker container rm $CONTAINER
-        exit $?
-        ;;
 create|build)
         echo -e "---------------------------------\n"
         echo -e "Creating container $CONTAINER\n"
@@ -81,55 +43,9 @@ create|build)
             "$IMAGE"
         exit $?
         ;;
-uname)
-        echo -e "---------------------------------\n"
-        echo -e "Execute command for container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        docker exec -it $CONTAINER uname -a
-        exit $?
-        ;;
-recreate|rebuild)
-        echo -e "---------------------------------\n"
-        echo -e "Rebuilding container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        $0 stop &> /dev/null || echo "Container doesn't exist"
-        $0 remove &> /dev/null || echo "Container doesn't exist"
-        $0 pull
-        $0 create
-        echo -e "---------------------------------\n"
-        echo -e "---------------------------------\n"
-        docker container ls -a -f name=$CONTAINER
-        exit $?
-        ;;
-terminal|console)
-        echo -e "---------------------------------\n"
-        echo -e "Accessing terminal $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        docker exec -it $CONTAINER /bin/sh
-        exit $?
-        ;;
-log)
-        echo -e "---------------------------------\n"
-        echo -e "     Accessing logs: $CONTAINER\n  "
-        echo -e "---------------------------------\n"
-        docker logs $CONTAINER
-        exit $?
-        ;;
-logf)
-        echo -e "---------------------------------\n"
-        echo -e "     Accessing logs: $CONTAINER\n  "
-        echo -e "---------------------------------\n"
-        docker logs -f $CONTAINER
-        exit $?
-        ;;
-status)
-        echo -e "---------------------------------\n"
-        echo -e "     Status: $CONTAINER\n  "
-        echo -e "---------------------------------\n"
-        docker ps -a -f name=$CONTAINER
-        exit $?
-        ;;
 *)
+        # include common operations
+        source $SCRIPTPATH/.common-operations
         echo -e "
         Usage: $0
                                  start | stop | restart

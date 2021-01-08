@@ -17,45 +17,6 @@ set -e
 set -u # or set -o nounset
 
 case "${1-}" in
-start)
-        echo -e "---------------------------------\n"
-        echo -e "Starting container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        docker start $CONTAINER
-        printf '\nStarting up %s container\n\n' "$CONTAINER"
-        $0 log
-        exit $?
-        ;;
-stop)
-        echo -e "---------------------------------\n"
-        echo -e "Stopping container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        docker stop $CONTAINER
-        exit $?
-        ;;
-pull)
-        echo -e "---------------------------------\n"
-        echo -e "Pulling container image $CONTAINER_IMAGE\n"
-        echo -e "---------------------------------\n"
-        docker pull $CONTAINER_IMAGE
-        exit $?
-        ;;
-restart)
-        echo -e "---------------------------------\n"
-        echo -e "Restarting container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        docker restart $CONTAINER
-        # $0 stop
-        # $0 start
-        exit $?
-        ;;
-remove)
-        echo -e "---------------------------------\n"
-        echo -e "Remove container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        docker container rm $CONTAINER
-        exit $?
-        ;;
 create|build)
         echo -e "---------------------------------\n"
         echo -e "Creating container $CONTAINER\n"
@@ -92,13 +53,6 @@ init)
         echo -e "Initialize $CONTAINER configuration\n"
         docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm $CONTAINER_IMAGE ovpn_genconfig -u udp://$OVPN_DOMAIN -n $OVPN_DNS_SERVER1 -n $OVPN_DNS_SERVER2 -n $OVPN_DNS_SERVER3
         docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $CONTAINER_IMAGE ovpn_initpki
-        exit $?
-        ;;
-uname)
-        echo -e "---------------------------------\n"
-        echo -e "Execute command for container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        docker exec -it $CONTAINER uname -a
         exit $?
         ;;
 fix-permissions)
@@ -180,48 +134,9 @@ retrieve-client-config)
         fi
         exit $?
         ;;
-recreate|rebuild)
-        echo -e "---------------------------------\n"
-        echo -e "Rebuilding container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        $0 stop &> /dev/null || echo "Container doesn't exist"
-        $0 remove &> /dev/null || echo "Container doesn't exist"
-        $0 pull
-        $0 create
-        echo -e "---------------------------------\n"
-        echo -e "---------------------------------\n"
-        docker container ls -a -f name=$CONTAINER
-        exit $?
-        ;;
-terminal|console)
-        echo -e "---------------------------------\n"
-        echo -e "Accessing terminal $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        docker exec -it $CONTAINER /bin/bash
-        exit $?
-        ;;
-log)
-        echo -e "---------------------------------\n"
-        echo -e "     Accessing logs: $CONTAINER\n  "
-        echo -e "---------------------------------\n"
-        docker logs $CONTAINER
-        exit $?
-        ;;
-logf)
-        echo -e "---------------------------------\n"
-        echo -e "     Accessing logs: $CONTAINER\n  "
-        echo -e "---------------------------------\n"
-        docker logs -f $CONTAINER
-        exit $?
-        ;;
-status)
-        echo -e "---------------------------------\n"
-        echo -e "     Status: $CONTAINER\n  "
-        echo -e "---------------------------------\n"
-        docker ps -a -f name=$CONTAINER
-        exit $?
-        ;;
 *)
+        # include common operations
+        source $SCRIPTPATH/.common-operations
         echo -e "
         Usage: $0
                                  start | stop
