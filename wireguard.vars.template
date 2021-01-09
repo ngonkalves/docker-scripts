@@ -1,5 +1,5 @@
 CONTAINER="wireguard"
-CONTAINER_IMAGE="ngonkalves/wireguard:v0.1"
+IMAGE="ngonkalves/wireguard:v0.1"
 CONTAINER_RESTART_MODE="unless-stopped"
 TIMEZONE="Europe/Lisbon"
 # user id

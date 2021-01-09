@@ -40,7 +40,7 @@ create|build)
             --restart="$CONTAINER_RESTART_MODE" \
             --sysctl="net.ipv4.conf.all.src_valid_mark=1" \
             -p $SERVERPORT:51820/udp \
-            "$CONTAINER_IMAGE"
+            "$IMAGE"
         exit $?
         ;;
 users)

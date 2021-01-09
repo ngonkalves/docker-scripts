@@ -1,5 +1,5 @@
 CONTAINER="openvpn-the-mardy"
-CONTAINER_IMAGE="themardy/openvpn:1.0.0"
+IMAGE="themardy/openvpn:1.0.0"
 CONTAINER_RESTART_MODE="unless-stopped"
 DEBUG=0
 DOCKER_GROUP="docker"

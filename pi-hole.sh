@@ -62,7 +62,7 @@ create|build)
             --dns="$DNS_SERVER" \
             --cap-add=NET_ADMIN \
             --restart="$CONTAINER_RESTART_MODE" \
-            "$CONTAINER_IMAGE"
+            "$IMAGE"
             # Containter network is the same as the host, there's no need to map ports
             #-p 80:80 \
             #-p 53:53/tcp \

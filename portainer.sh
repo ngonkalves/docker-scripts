@@ -28,7 +28,7 @@ create|build)
             -v $VOL_DATA:/data \
             --restart="$CONTAINER_RESTART_MODE" \
             -p $PORT:9000 \
-            "$CONTAINER_IMAGE"
+            "$IMAGE"
         exit $?
         ;;
 *)

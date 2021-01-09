@@ -1,5 +1,5 @@
 CONTAINER="pihole"
-CONTAINER_IMAGE="pihole/pihole:latest"
+IMAGE="pihole/pihole:latest"
 CONTAINER_RESTART_MODE="unless-stopped"
 SERVER_IPV4="192.168.1.10"
 SERVER_IPV6="2001:818:e303:ac00:81:a5ff:fea6:88a1"

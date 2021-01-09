@@ -42,7 +42,7 @@ create|build)
             --sysctl net.ipv6.conf.all.disable_ipv6=1 \
             -p $OVPN_PORT:1194 \
             -e DEBUG=$DEBUG \
-            "$CONTAINER_IMAGE"
+            "$IMAGE"
         exit $?
         ;;
 init)
@@ -51,8 +51,8 @@ init)
         echo -e "---------------------------------\n"
         # TODO: create docker volume if necessary
         echo -e "Initialize $CONTAINER configuration\n"
-        docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm $CONTAINER_IMAGE ovpn_genconfig -u udp://$OVPN_DOMAIN -n $OVPN_DNS_SERVER1 -n $OVPN_DNS_SERVER2 -n $OVPN_DNS_SERVER3
-        docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $CONTAINER_IMAGE ovpn_initpki
+        docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm $IMAGE ovpn_genconfig -u udp://$OVPN_DOMAIN -n $OVPN_DNS_SERVER1 -n $OVPN_DNS_SERVER2 -n $OVPN_DNS_SERVER3
+        docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $IMAGE ovpn_initpki
         exit $?
         ;;
 fix-permissions)
@@ -85,9 +85,9 @@ generate-client-nopass|generate-client)
 
         if [[ ! "$CLIENTNAME" == "" ]]; then
             if [[ "$1" == *"-nopass" ]]; then
-                docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $CONTAINER_IMAGE easyrsa build-client-full $CLIENTNAME nopass
+                docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $IMAGE easyrsa build-client-full $CLIENTNAME nopass
             else
-                docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $CONTAINER_IMAGE easyrsa build-client-full $CLIENTNAME
+                docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $IMAGE easyrsa build-client-full $CLIENTNAME
             fi
         else
             echo -e "\nMust provide a non empty username"
@@ -109,9 +109,9 @@ revoke-client-remove|revoke-client)
 
         if [[ ! "$CLIENTNAME" == "" ]]; then
             if [[ "$1" == *"-remove" ]]; then
-                docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $CONTAINER_IMAGE ovpn_revokeclient $CLIENTNAME remove
+                docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $IMAGE ovpn_revokeclient $CLIENTNAME remove
             else
-                docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $CONTAINER_IMAGE ovpn_revokeclient $CLIENTNAME
+                docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $IMAGE ovpn_revokeclient $CLIENTNAME
             fi
         else
             echo -e "\nMust provide a non empty username"
@@ -128,7 +128,7 @@ retrieve-client-config)
         read CLIENTNAME
 
         if [[ ! "$CLIENTNAME" == "" ]]; then
-            docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $CONTAINER_IMAGE ovpn_getclient $CLIENTNAME > $CLIENTNAME.ovpn
+            docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $IMAGE ovpn_getclient $CLIENTNAME > $CLIENTNAME.ovpn
         else
             echo -e "\nMust provide a non empty username"
         fi
