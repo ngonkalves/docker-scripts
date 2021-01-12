@@ -1,0 +1,11 @@
+CONTAINER="portainer"
+IMAGE="portainer/portainer-ce:2.0.0-alpine"
+CONTAINER_RESTART_MODE="unless-stopped"
+TIMEZONE="Europe/Lisbon"
+PASSWORD="PutYourInitialPasswordHere"
+# user id
+PUID=1000
+# docker group id
+PGID=995
+PORT="80"
+VOL_DATA="$CURRENT_DIR/volumes/$CONTAINER/data"
