@@ -92,6 +92,13 @@ logf)
         docker logs -f $CONTAINER
         exit $?
         ;;
+inspect)
+        echo -e "---------------------------------\n"
+        echo -e "     Inspecting: $CONTAINER\n  "
+        echo -e "---------------------------------\n"
+        docker inspect $CONTAINER
+        exit $?
+        ;;
 status)
         echo -e "---------------------------------\n"
         echo -e "     Status: $CONTAINER\n  "
@@ -111,6 +118,7 @@ status)
                                  uname
                                  log
                                  logf
+                                 inspect
                                  status"
         ;;
 esac;
