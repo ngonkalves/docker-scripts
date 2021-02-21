@@ -23,14 +23,14 @@ create|build)
         echo -e "---------------------------------\n"
 
         # if is a folder path, chech if exists
-        if [[ "$OVPN_DATA" == *"/"* ]]; then
-            echo -e "Container data is a folder: $OVPN_DATA"
-            if [[ ! -e "$OVPN_DATA" ]]; then
-                mkdir -p "$OVPN_DATA"
-                # chgrp $DOCKER_GROUP $OVPN_DATA
+        if [[ "$VOL_ETC_OPENVPN" == *"/"* ]]; then
+            echo -e "Container data is a folder: $VOL_ETC_OPENVPN"
+            if [[ ! -e "$VOL_ETC_OPENVPN" ]]; then
+                mkdir -p "$VOL_ETC_OPENVPN"
+                # chgrp $DOCKER_GROUP $VOL_ETC_OPENVPN
             fi
         else
-            echo -e "Container data is a docker volume: $OVPN_DATA"
+            echo -e "Container data is a docker volume: $VOL_ETC_OPENVPN"
         fi
 
         docker create \
@@ -51,22 +51,22 @@ init)
         echo -e "---------------------------------\n"
         # TODO: create docker volume if necessary
         echo -e "Initialize $CONTAINER configuration\n"
-        docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm $IMAGE ovpn_genconfig -u udp://$OVPN_DOMAIN -n $OVPN_DNS_SERVER1 -n $OVPN_DNS_SERVER2 -n $OVPN_DNS_SERVER3
-        docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $IMAGE ovpn_initpki
+        docker run -v $VOL_ETC_OPENVPN:/etc/openvpn --log-driver=none --rm $IMAGE ovpn_genconfig -u udp://$OVPN_DOMAIN -n $OVPN_DNS_SERVER1 -n $OVPN_DNS_SERVER2 -n $OVPN_DNS_SERVER3
+        docker run -v $VOL_ETC_OPENVPN:/etc/openvpn --log-driver=none --rm -it $IMAGE ovpn_initpki
         exit $?
         ;;
 fix-permissions)
         echo -e "---------------------------------\n"
         echo -e "---------------------------------\n"
         # if is a folder path, chech if exists
-        if [[ "$OVPN_DATA" == *"/"* ]]; then
-            echo -e "Container data is a folder: $OVPN_DATA"
-            if [[ -e "$OVPN_DATA" ]]; then
-                sudo chown -R $(whoami) "$OVPN_DATA"
-                sudo chgrp -R "$DOCKER_GROUP" "$OVPN_DATA"
+        if [[ "$VOL_ETC_OPENVPN" == *"/"* ]]; then
+            echo -e "Container data is a folder: $VOL_ETC_OPENVPN"
+            if [[ -e "$VOL_ETC_OPENVPN" ]]; then
+                sudo chown -R $(whoami) "$VOL_ETC_OPENVPN"
+                sudo chgrp -R "$DOCKER_GROUP" "$VOL_ETC_OPENVPN"
             fi
         else
-            echo -e "Container data is a docker volume: $OVPN_DATA"
+            echo -e "Container data is a docker volume: $VOL_ETC_OPENVPN"
         fi
 
         ;;
@@ -85,9 +85,9 @@ generate-client-nopass|generate-client)
 
         if [[ ! "$CLIENTNAME" == "" ]]; then
             if [[ "$1" == *"-nopass" ]]; then
-                docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $IMAGE easyrsa build-client-full $CLIENTNAME nopass
+                docker run -v $VOL_ETC_OPENVPN:/etc/openvpn --log-driver=none --rm -it $IMAGE easyrsa build-client-full $CLIENTNAME nopass
             else
-                docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $IMAGE easyrsa build-client-full $CLIENTNAME
+                docker run -v $VOL_ETC_OPENVPN:/etc/openvpn --log-driver=none --rm -it $IMAGE easyrsa build-client-full $CLIENTNAME
             fi
         else
             echo -e "\nMust provide a non empty username"
@@ -109,9 +109,9 @@ revoke-client-remove|revoke-client)
 
         if [[ ! "$CLIENTNAME" == "" ]]; then
             if [[ "$1" == *"-remove" ]]; then
-                docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $IMAGE ovpn_revokeclient $CLIENTNAME remove
+                docker run -v $VOL_ETC_OPENVPN:/etc/openvpn --log-driver=none --rm -it $IMAGE ovpn_revokeclient $CLIENTNAME remove
             else
-                docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $IMAGE ovpn_revokeclient $CLIENTNAME
+                docker run -v $VOL_ETC_OPENVPN:/etc/openvpn --log-driver=none --rm -it $IMAGE ovpn_revokeclient $CLIENTNAME
             fi
         else
             echo -e "\nMust provide a non empty username"
@@ -128,7 +128,7 @@ retrieve-client-config)
         read CLIENTNAME
 
         if [[ ! "$CLIENTNAME" == "" ]]; then
-            docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it $IMAGE ovpn_getclient $CLIENTNAME > $CLIENTNAME.ovpn
+            docker run -v $VOL_ETC_OPENVPN:/etc/openvpn --log-driver=none --rm -it $IMAGE ovpn_getclient $CLIENTNAME > $CLIENTNAME.ovpn
         else
             echo -e "\nMust provide a non empty username"
         fi

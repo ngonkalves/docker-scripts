@@ -18,3 +18,9 @@ OVERRIDE_FILE_VARS="${FILE_NO_EXTENSION}.override.conf"
 # add docker container prefix
 CONTAINER_PREFIX="ds"
 CONTAINER="${CONTAINER_PREFIX}-${CONTAINER}"
+
+function container_exist() {
+     local container="$1"
+     local num_containers=$(docker container ls -a -q -f name=$container | wc -l)
+     [[ $num_containers = "1" ]] && echo "true" || echo "false"
+}
