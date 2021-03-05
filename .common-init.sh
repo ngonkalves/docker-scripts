@@ -24,3 +24,10 @@ function container_exist() {
      local num_containers=$(docker container ls -a -q -f name=$container | wc -l)
      [[ $num_containers = "1" ]] && echo "true" || echo "false"
 }
+
+function container_running() {
+    local container="$1"
+    local num_containers=$(docker container ps -q -f name=$container | wc -l)
+    [[ $num_containers = "1" ]] && echo "true" || echo "false"
+}
+
