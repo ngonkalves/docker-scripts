@@ -17,8 +17,12 @@ create|build)
         echo -e "Creating container $CONTAINER\n"
         echo -e "---------------------------------\n"
 
+        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK")
+
         docker create \
             --name="$CONTAINER" \
+            --privileged=true \
+            $network_option \
             --device $DEVICE:$DEVICE \
             -e TZ="$TIMEZONE" \
             -v /run/udev:/run/udev:ro \
@@ -27,10 +31,51 @@ create|build)
             "$IMAGE"
         exit $?
         ;;
+check-permission)
+        echo "---------------------------------"
+        echo "Check write permissions: $DEVICE "
+        echo "---------------------------------"
+        test -w $DEVICE && echo "OK: user/group has write permissions" || echo "FAILED: user/group doesn't have write permissions"
+        exit 0
+        ;;
+set-defaults|force-defaults)
+        echo -e "---------------------------------\n"
+        echo -e "Setting defaults for $CONTAINER\n"
+        echo -e "---------------------------------\n"
+
+        $0 create-folder-structure
+
+        file_path="$VOL_DATA/configuration.yaml"
+        [[ -e "$file_path" && "$1" == "set-defaults" ]] || echo "overwriting: $file_path" && \
+        cat << EOF > $file_path
+homeassistant: false
+permit_join: true
+mqtt:
+  base_topic: zigbee2mqtt
+  server: 'mqtt://${CONTAINER_PREFIX}-mosquitto'
+  user: user
+  password: password
+  version: 5
+serial:
+  port: $DEVICE
+advanced:
+  rtscts: false
+  log_level: info
+  pan_id: 6755
+device_options: {}
+external_converters: []
+devices: []
+EOF
+#############################################################
+        ;;
 *)
         # include common operations
         source $SCRIPTPATH/.common-operations.sh
-        echo -e "\t\t\t\t----------------------------------------"
+        echo -e "\t\t\t\t----------------------------------------
+                                 check-permission
+                                 set-defaults | force-defaults
+                                 "
+
         exit 2
         ;;
 esac

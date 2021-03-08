@@ -17,9 +17,12 @@ create|build)
         echo -e "Creating container $CONTAINER\n"
         echo -e "---------------------------------\n"
 
+        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK")
+
         docker create \
             --name="$CONTAINER" \
             --user "$PUID:$PGID" \
+            $network_option \
             -e TZ="$TIMEZONE" \
             -v $VOL_DATA:/mosquitto/data \
             -v $VOL_CONFIG:/mosquitto/config \
@@ -36,45 +39,12 @@ set-defaults|force-defaults)
         echo -e "---------------------------------\n"
         echo -e "Setting defaults for $CONTAINER\n"
         echo -e "---------------------------------\n"
-        #[[ -x "$VOL_CONFIG/conf.d" ]] || mkdir -p $VOL_CONFIG/conf.d
 
-        FOLDERS=(
-            "$VOL_CONFIG"
-            "$VOL_CONFIG/conf.d"
-            "$VOL_LOG"
-        )
+        $0 create-folder-structure
 
-        FILES=(
-            "$VOL_CONFIG/mosquitto.conf"
-            "$VOL_CONFIG/mosquitto_passwd"
-            "$VOL_CONFIG/conf.d/passwd.conf"
-            "$VOL_CONFIG/conf.d/anonymous.conf"
-            "$VOL_CONFIG/conf.d/port.conf"
-            "$VOL_LOG/mosquitto.log"
-        )
-
-        for FOLDER in ${FOLDERS[@]}; do
-            echo "processing folder: $FOLDER"
-            if [[ ! -x "$FOLDER" ]]; then
-                mkdir -p "$FOLDER"
-            fi
-            echo "change permissions: $FOLDER"
-            chown "$PUID":"$PGID" "$FOLDER"
-            chmod 770 "$FOLDER"
-        done;
-
-        for FILE in ${FILES[@]}; do
-            echo "processing file: $FILE"
-            if [[ ! -e "$FILE" ]]; then
-                touch "$FILE"
-            fi
-            echo "change permissions: $FILE"
-            chown "$PUID":"$PGID" "$FILE"
-            chmod 660 "$FILE"
-        done;
-
-        [[ -e "$VOL_CONFIG/mosquitto.conf" && "$1" == "set-defaults" ]] || echo "overwriting: $VOL_CONFIG/mosquitto.conf" && \
-        cat << EOF > $VOL_CONFIG/mosquitto.conf
+        file_path="$VOL_CONFIG/mosquitto.conf"
+        [[ -e "$file_path" && "$1" == "set-defaults" ]] || echo "overwriting: $file_path" && \
+        cat << EOF > $file_path
 # Place your local configuration in /etc/mosquitto/conf.d/
 #
 # A full description of the configuration file is at
@@ -96,36 +66,40 @@ log_dest file /mosquitto/log/mosquitto.log
 include_dir /mosquitto/config/conf.d
 EOF
 #############################################################
-        [[ -e "$VOL_CONFIG/mosquitto_passwd" && "$1" == "set-defaults" ]] || echo "overwriting: $VOL_CONFIG/mosquitto_passwd" && \
-        cat << EOF > $VOL_CONFIG/mosquitto_passwd
+        file_path="$VOL_CONFIG/mosquitto_passwd"
+        [[ -e "$file_path" && "$1" == "set-defaults" ]] || echo "overwriting: $file_path" && \
+        cat << EOF > $file_path
 EOF
-#        [[ -e "$VOL_CONFIG/mosquitto_passwd" ]] && chmod 666 "$VOL_CONFIG/mosquitto_passwd"
 #############################################################
-        [[ -e "$VOL_CONFIG/conf.d/passwd.conf" && "$1" == "set-defaults" ]] || echo "overwriting: $VOL_CONFIG/conf.d/passwd.conf" && \
-        cat << EOF > $VOL_CONFIG/conf.d/passwd.conf
+        file_path="$VOL_CONFIG/conf.d/passwd.conf"
+        [[ -e "$file_path" && "$1" == "set-defaults" ]] || echo "overwriting: $file_path" && \
+        cat << EOF > $file_path
 password_file /mosquitto/config/mosquitto_passwd
 EOF
 #############################################################
-        [[ -e "$VOL_CONFIG/conf.d/anonymous.conf" && "$1" == "set-defaults" ]] || echo "overwriting: $VOL_CONFIG/conf.d/anonymous.conf" && \
-        cat << EOF > $VOL_CONFIG/conf.d/anonymous.conf
+        file_path="$VOL_CONFIG/conf.d/anonymous.conf"
+        [[ -e "$file_path" && "$1" == "set-defaults" ]] || echo "overwriting: $file_path" && \
+        cat << EOF > $file_path
 allow_anonymous false
 EOF
 #############################################################
-        [[ -e "$VOL_CONFIG/conf.d/port.conf" && "$1" == "set-defaults" ]] || echo "overwriting: $VOL_CONFIG/conf.d/port.conf" && \
-        cat << EOF > $VOL_CONFIG/conf.d/port.conf
+        file_path="$VOL_CONFIG/conf.d/port.conf"
+        [[ -e "$file_path" && "$1" == "set-defaults" ]] || echo "overwriting: $file_path" && \
+        cat << EOF > $file_path
 listener 1883
 EOF
 #############################################################
-        [[ -e "$VOL_CONFIG/config.d/README" && "$1" == "set-defaults" ]] || echo "overwriting: $VOL_CONFIG/conf.d/README" && \
-        cat << EOF > $VOL_CONFIG/conf.d/README
+        file_path="$VOL_CONFIG/conf.d/README"
+        [[ -e "$file_path" && "$1" == "set-defaults" ]] || echo "overwriting: $file_path" && \
+        cat << EOF > $file_path
 Any files placed in this directory that have a .conf ending will be loaded as
 config files by the broker. Use this to make your local config.
 EOF
 #############################################################
-        [[ -e "$VOL_LOG/mosquitto.log" && "$1" == "set-defaults" ]] || echo "overwriting: $VOL_LOG/mosquitto.log" && \
-        cat << EOF > $VOL_LOG/mosquitto.log
+        file_path="$VOL_LOG/mosquitto.log"
+        [[ -e "$file_path" && "$1" == "set-defaults" ]] || echo "overwriting: $file_path" && \
+        cat << EOF > $file_path
 EOF
-#        [[ -e "$VOL_LOG/mosquitto.log" ]] && chmod 666 "$VOL_LOG/mosquitto.log"
         ;;
 create-user)
          echo -e "---------------------------------\n"
@@ -134,13 +108,12 @@ create-user)
          read USERNAME
 
          if [[ ! "$USERNAME" == "" ]]; then
-             container_exist $CONTAINER
-             EXISTS=$(container_exist $CONTAINER)
-             if [[ ! $EXISTS = "true" ]]; then
+             EXISTS=$(container_exists $CONTAINER)
+             if [[ ! $EXISTS == "true" ]]; then
                  $0 recreate
              fi
              RUNNING=$(container_running $CONTAINER)
-             if [[ ! $RUNNING = "true" ]]; then
+             if [[ ! $RUNNING == "true" ]]; then
                  docker start $CONTAINER
              fi
              #docker run -it $CONTAINER mosquitto_passwd -c test $USERNAME
@@ -155,9 +128,9 @@ create-user)
         # include common operations
         source $SCRIPTPATH/.common-operations.sh
         echo -e "\t\t\t\t----------------------------------------
-                                  set-defaults | force-defaults
-                                  create-user
-                                  "
+                                 set-defaults | force-defaults
+                                 create-user
+                                 "
 
         exit 2
         ;;

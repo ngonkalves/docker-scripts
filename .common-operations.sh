@@ -5,6 +5,7 @@ start)
         echo -e "---------------------------------\n"
         echo -e "Starting container $CONTAINER\n"
         echo -e "---------------------------------\n"
+        $0 create-network
         docker start $CONTAINER
         printf '\nStarting up %s container\n\n' "$CONTAINER"
         $0 logf
@@ -64,6 +65,67 @@ recreate|rebuild)
         $0 start
         exit $?
         ;;
+create-network)
+        if [[ ! ${NETWORK-} == "" ]]; then
+            echo -e "---------------------------------\n"
+            echo -e "Creating network $NETWORK\n"
+            echo -e "---------------------------------\n"
+            create_network_if_not_exists "$NETWORK"
+            exit $?
+        fi
+        exit 0
+        ;;
+remove-network)
+        #if [[ ! ${NETWORK-} == "" ]]; then
+            # TODO: remove network if not in use
+        #fi
+        ;;
+remove-config)
+        read -r -p "Do you really want to remove all configuration files? [y/N] " option
+        case ${option-} in
+            [yY][eE][sS]|[yY])
+                $0 stop || true
+                read -r -p "Are you really sure you want to remove $CURRENT_DIR/volumes/$CONTAINER_SIMPLE_NAME? [y/N] " option2
+                case ${option2-} in
+                    [yY][eE][sS]|[yY])
+                        rm -rvf $CURRENT_DIR/volumes/$CONTAINER_SIMPLE_NAME
+                    ;;
+                    *)
+                        echo "Nothing was done!"
+                        exit 0
+                    ;;
+                esac;
+                ;;
+            *)
+                echo "Nothing was done!"
+                exit 0
+            ;;
+        esac;
+        exit 0
+        ;;
+create-folder-structure)
+         folders=(${FOLDERS-})
+         for folder in ${folders[@]}; do
+             echo "processing folder: $folder"
+             if [[ ! -x "$folder" ]]; then
+                 mkdir -p "$folder"
+             fi
+             echo "change permissions: $folder"
+             chown "${PUID=`id -u`}":"${PGID=`id -g`}" "$folder"
+             chmod 770 "$folder"
+         done;
+         files=(${FILES-})
+         for file in ${files[@]}; do
+             echo "processing file: $file"
+             if [[ ! -e "$file" ]]; then
+                 touch "$file"
+             fi
+             echo "change permissions: $file"
+             chown "${PUID=`id -u`}":"${PGID=`id -g`}" "$file"
+             chmod 660 "$file"
+         done;
+         exit 0
+        ;;
 terminal|console)
         echo -e "---------------------------------\n"
         echo -e "Accessing terminal $CONTAINER\n"
@@ -112,6 +174,8 @@ status)
                                  start | stop | restart
                                  remove
                                  create | recreate
+                                 create-network | remove-network
+                                 remove-config
                                  terminal | console
                                  pull
                                  cp [source_path] [target_path]
