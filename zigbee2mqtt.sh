@@ -25,6 +25,7 @@ create|build)
             $network_option \
             --device $DEVICE:$DEVICE \
             -e TZ="$TIMEZONE" \
+            $ENVS_STR \
             -v /run/udev:/run/udev:ro \
             -v $VOL_DATA:/app/data \
             --restart="$CONTAINER_RESTART_MODE" \
@@ -64,7 +65,6 @@ advanced:
   pan_id: 6755
 device_options: {}
 external_converters: []
-devices: []
 EOF
 #############################################################
         ;;

@@ -171,7 +171,7 @@ status)
 *)
         echo -e "
         Usage: $0
-                                 start | stop | restart
+                                 start | stop | restart | status
                                  remove
                                  create | recreate
                                  create-network | remove-network

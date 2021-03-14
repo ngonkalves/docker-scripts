@@ -1,2 +1,3 @@
 *.override.conf
+*.env.conf
 volumes
