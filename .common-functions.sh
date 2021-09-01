@@ -1,32 +1,3 @@
-function load_environment_variables() {
-    local envs_str=""
-    local file_path="$1"
-    if [[ -e $file_path ]]; then
-        # declare associative array
-        declare -A envs_array
-
-        #echo "Loading env file: $file_path"
-
-        readarray -t lines < "$file_path"
-
-        for line in "${lines[@]}"; do
-           key=${line%%=*}
-           value=${line#*=}
-           envs_array[$key]=$value  ## Or simply envs_array[${line%%=*}]=${line#*=}
-        done
-        # build environment string
-        for key in "${!envs_array[@]}"; do
-          # Skip lines starting with sharp
-          # or lines containing only space or empty lines
-          [[ "$key" =~ ^([[:space:]]*|[[:space:]]*#.*)$ ]] && continue
-          #echo "key  : $key"
-          #echo "value: ${envs_array[$key]}"
-          envs_str=" ${envs_str} --env $key=${envs_array[$key]} "
-        done
-    fi
-    echo $envs_str
-}
-
 function container_exists() {
      local container="$1"
      local num_containers=$(docker container ls -a -q -f name=$container | wc -l)
