@@ -27,7 +27,6 @@ create|build)
             -e GID="$PGID" \
             $ENVS_STR \
             $LABELS_STR \
-            --label-file homer.label.conf \
             -v $VOL_ASSETS:/www/assets \
             --restart="$CONTAINER_RESTART_MODE" \
             -p $PORT:8080 \

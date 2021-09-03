@@ -1,4 +1,2 @@
 *.override.conf
-*.env.conf
-*.label.conf
 volumes
