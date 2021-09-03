@@ -19,17 +19,16 @@ create|build)
 
         network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK")
 
+        WEB_PORT=$([[ ! $PORT = "" ]] && echo "-p $PORT:8080" || echo "" )
+
         docker create \
             --name="$CONTAINER" \
+            --restart="$CONTAINER_RESTART_MODE" \
             $network_option \
-            -e TZ="$TIMEZONE" \
-            -e UID="$PUID" \
-            -e GID="$PGID" \
             $ENVS_STR \
             $LABELS_STR \
             -v $VOL_ASSETS:/www/assets \
-            --restart="$CONTAINER_RESTART_MODE" \
-            -p $PORT:8080 \
+            $WEB_PORT \
             "$IMAGE"
         exit $?
         ;;
