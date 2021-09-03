@@ -35,6 +35,7 @@ create|build)
 *)
         # include common operations
         source $SCRIPTPATH/.common-operations.sh
+        echo -e "\t\t\t\t----------------------------------------"
         exit 2
         ;;
 esac
