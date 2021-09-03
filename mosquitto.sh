@@ -20,10 +20,8 @@ create|build)
         echo -e "---------------------------------\n"
 
         network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK" || echo "")
-        
-        PORT1_STR=$([[ ! $PORT1 = "" ]] && echo "-p $PORT1:1883" || echo "" )
-        PORT2_STR=$([[ ! $PORT2 = "" ]] && echo "-p $PORT2:8883" || echo "" )
-        PORT3_STR=$([[ ! $PORT3 = "" ]] && echo "-p $PORT3:9001" || echo "" )
+
+        PORT_STR=$([[ ! $PORT = "" ]] && echo "-p $PORT:1883" || echo "" )
 
         docker create \
             --name="$CONTAINER" \
@@ -36,9 +34,7 @@ create|build)
             -v $VOL_DATA:/mosquitto/data \
             -v $VOL_CONFIG:/mosquitto/config \
             -v $VOL_LOG:/mosquitto/log \
-            $PORT1_STR \
-            $PORT2_STR \
-            $PORT3_STR \
+            $PORT_STR \
             "$IMAGE"
         exit $?
         ;;
