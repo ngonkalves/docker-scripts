@@ -25,7 +25,7 @@ create|build)
 
         docker create \
             --name="$CONTAINER" \
-            --restart="$CONTAINER_RESTART_MODE" \
+            --restart="$RESTART_MODE" \
             $network_option \
             $ENVS_STR \
             $LABELS_STR \
