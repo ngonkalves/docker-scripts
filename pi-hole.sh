@@ -20,6 +20,8 @@ set -e
 # script will exit with error when variable not set
 set -u # or set -o nounset
 
+# due to set -u we need to define a default value of empty when no arguments are passed
+# https://stackoverflow.com/questions/43707685/set-u-nounset-vs-checking-whether-i-have-arguments
 case "${1-}" in
 start)
         echo -e "Starting container $CONTAINER\n"
@@ -44,29 +46,22 @@ start)
         ;;
 create|build)
         echo -e "Creating container $CONTAINER\n"
-
+		# When containter network is the same as the host, there's no need to map ports
+		WEB_PORT_STR=$([[ ! $WEB_PORT = "" ]] && echo "-p $WEB_PORT:80" || echo "" )
+		DNS_PORT_STR=$([[ ! $DNS_PORT = "" ]] && echo "-p $DNS_PORT:53" || echo "" )
+		
         docker create \
             --name="$CONTAINER" \
-            -e TZ="$TIMEZONE" \
-            -e WEBPASSWORD="$WEBPASSWORD" \
-            -e ServerIP="$SERVER_IPV4" \
-            -e ServerIPv6="$SERVER_IPV6" \
-            -e DNS1="$DNS_SERVER1" \
-            -e DNS2="$DNS_SERVER2" \
-            -e ADMIN_EMAIL="$ADMIN_EMAIL" \
-            -e IPv6="$IPV6" \
+            --net=host \
+            --dns="$ServerIP" \
+            --dns="$DNS1" \
+            --cap-add=NET_ADMIN \
+            --restart="$RESTART_MODE" \
             -v $VOL_ETC_PIHOLE:/etc/pihole \
             -v $VOL_ETC_DNSMASQ:/etc/dnsmasq.d \
-            --net=host \
-            --dns="$SERVER_IPV4" \
-            --dns="$DNS_SERVER" \
-            --cap-add=NET_ADMIN \
-            --restart="$CONTAINER_RESTART_MODE" \
+			$WEB_PORT_STR \
+			$DNS_PORT_STR \
             "$IMAGE"
-            # Containter network is the same as the host, there's no need to map ports
-            #-p 80:80 \
-            #-p 53:53/tcp \
-            #-p 53:53/udp \
         exit $?
         ;;
 chpasswd)
@@ -77,7 +72,7 @@ chpasswd)
 *)
         # include common operations
         source $SCRIPTPATH/.common-operations.sh
-        echo -e "Usage: $0 {start|stop|pull|restart|remove|create|recreate|chpasswd|terminal|log|logf|status}\n"
+        echo -e "\t\t\t\t----------------------------------------"
         exit 2
         ;;
 esac
