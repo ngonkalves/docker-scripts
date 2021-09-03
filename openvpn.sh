@@ -37,7 +37,7 @@ create|build)
 
         network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK" || echo "")
         
-		OVPN_PORT_STR=$([[ ! $OVPN_PORT = "" ]] && echo "-p $OVPN_PORT:1194" || echo "" )
+        OVPN_PORT_STR=$([[ ! $OVPN_PORT = "" ]] && echo "-p $OVPN_PORT:1194" || echo "" )
         
         docker create \
             --name="$CONTAINER" \

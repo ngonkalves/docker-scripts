@@ -19,10 +19,10 @@ create|build)
         echo -e "Creating container $CONTAINER\n"
         echo -e "---------------------------------\n"
 
-        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK")
+        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK" || echo "" )
 
-		WEB_PORT_UNSECURE_STR=$([[ ! $WEB_PORT_UNSECURE = "" ]] && echo "-p $WEB_PORT_UNSECURE:80" || echo "" )
-		WEB_PORT_SECURE_STR=$([[ ! $WEB_PORT_SECURE = "" ]] && echo "-p $WEB_PORT_SECURE:443" || echo "" )
+        WEB_PORT_UNSECURE_STR=$([[ ! $WEB_PORT_UNSECURE = "" ]] && echo "-p $WEB_PORT_UNSECURE:80" || echo "" )
+        WEB_PORT_SECURE_STR=$([[ ! $WEB_PORT_SECURE = "" ]] && echo "-p $WEB_PORT_SECURE:443" || echo "" )
 
         docker create \
             --name="$CONTAINER" \

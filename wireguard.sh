@@ -15,31 +15,31 @@ set -e
 # script will exit with error when variable not set
 set -u # or set -o nounset
 
+# due to set -u we need to define a default value of empty when no arguments are passed
+# https://stackoverflow.com/questions/43707685/set-u-nounset-vs-checking-whether-i-have-arguments
 case "${1-}" in
 create|build)
         echo -e "---------------------------------\n"
         echo -e "Creating container $CONTAINER\n"
         echo -e "---------------------------------\n"
 
+        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK" || echo "")
+        
+		SERVERPORT_STR=$([[ ! $SERVERPORT = "" ]] && echo "-p $SERVERPORT:51820/udp" || echo "" )
+
         docker create \
             --name="$CONTAINER" \
             --cap-add=NET_ADMIN \
             --cap-add=SYS_MODULE \
-            -e TZ="$TIMEZONE" \
-            -e PUID=$PUID \
-            -e PGID=$PGID \
-            -e SERVERURL=$SERVERURL \
-            -e SERVERPORT=$SERVERPORT \
-            -e PEERS=$PEERS \
-            -e PEERDNS=$PEERDNS \
-            -e INTERNAL_SUBNET=$INTERNAL_SUBNET \
-            -e ALLOWEDIPS=$ALLOWEDIPS \
+            --restart="$RESTART_MODE" \
+            --sysctl="net.ipv4.conf.all.src_valid_mark=1" \
+			$network_option \
+            $ENVS_STR \
+            $LABELS_STR \
             -v $VOL_CONFIG:/config \
             -v $VOL_MODULES:/lib/modules \
             -v $VOL_USR_SRC:/usr/src \
-            --restart="$CONTAINER_RESTART_MODE" \
-            --sysctl="net.ipv4.conf.all.src_valid_mark=1" \
-            -p $SERVERPORT:51820/udp \
+            $SERVERPORT_STR \
             "$IMAGE"
         exit $?
         ;;

@@ -46,10 +46,13 @@ start)
         ;;
 create|build)
         echo -e "Creating container $CONTAINER\n"
-		# When containter network is the same as the host, there's no need to map ports
-		WEB_PORT_STR=$([[ ! $WEB_PORT = "" ]] && echo "-p $WEB_PORT:80" || echo "" )
-		DNS_PORT_STR=$([[ ! $DNS_PORT = "" ]] && echo "-p $DNS_PORT:53" || echo "" )
-		
+        
+        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK" || echo "" )
+        
+        # When containter network is the same as the host, there's no need to map ports
+        WEB_PORT_STR=$([[ ! $WEB_PORT = "" ]] && echo "-p $WEB_PORT:80" || echo "" )
+        DNS_PORT_STR=$([[ ! $DNS_PORT = "" ]] && echo "-p $DNS_PORT:53" || echo "" )
+        
         docker create \
             --name="$CONTAINER" \
             --net=host \
@@ -57,10 +60,13 @@ create|build)
             --dns="$DNS1" \
             --cap-add=NET_ADMIN \
             --restart="$RESTART_MODE" \
+            $network_option \
+            $ENVS_STR \
+            $LABELS_STR \
             -v $VOL_ETC_PIHOLE:/etc/pihole \
             -v $VOL_ETC_DNSMASQ:/etc/dnsmasq.d \
-			$WEB_PORT_STR \
-			$DNS_PORT_STR \
+            $WEB_PORT_STR \
+            $DNS_PORT_STR \
             "$IMAGE"
         exit $?
         ;;

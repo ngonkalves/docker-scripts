@@ -27,10 +27,16 @@ create|build)
 
         docker rmi -f $(docker images --format '{{.ID}}' --filter 'reference=$HTPASSWD_IMAGE')
 
-		WEB_PORT_STR=$([[ ! $WEB_PORT = "" ]] && echo "-p $WEB_PORT:9000" || echo "" )
+        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK" || echo "" )
+´
+        WEB_PORT_STR=$([[ ! $WEB_PORT = "" ]] && echo "-p $WEB_PORT:9000" || echo "" )
+
         docker create \
             --name="$CONTAINER" \
             --restart="$RESTART_MODE" \
+            $network_option \
+            $ENVS_STR \
+            $LABELS_STR \
             -v /etc/localtime:/etc/localtime:ro \
             -v /var/run/docker.sock:/var/run/docker.sock:ro \
             -v $VOL_DATA:/data \
