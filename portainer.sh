@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-#################################################################################
-#################################################################################
 
 SCRIPT=`realpath $0`
 SCRIPTPATH=`dirname $SCRIPT`
@@ -13,6 +11,8 @@ set -e
 # script will exit with error when variable not set
 set -u # or set -o nounset
 
+# due to set -u we need to define a default value of empty when no arguments are passed
+# https://stackoverflow.com/questions/43707685/set-u-nounset-vs-checking-whether-i-have-arguments
 case "${1-}" in
 create|build)
         echo -e "---------------------------------\n"
@@ -27,16 +27,14 @@ create|build)
 
         docker rmi -f $(docker images --format '{{.ID}}' --filter 'reference=$HTPASSWD_IMAGE')
 
+		WEB_PORT_STR=$([[ ! $WEB_PORT = "" ]] && echo "-p $WEB_PORT:9000" || echo "" )
         docker create \
             --name="$CONTAINER" \
-            -e TZ="$TIMEZONE" \
-            -e PUID=$PUID \
-            -e PGID=$PGID \
+            --restart="$RESTART_MODE" \
             -v /etc/localtime:/etc/localtime:ro \
             -v /var/run/docker.sock:/var/run/docker.sock:ro \
             -v $VOL_DATA:/data \
-            --restart="$CONTAINER_RESTART_MODE" \
-            -p $PORT:9000 \
+            $WEB_PORT_STR \
             "$IMAGE" \
             -H unix:///var/run/docker.sock \
             --admin-password="$PASSWORD_HASH"
@@ -45,6 +43,7 @@ create|build)
 *)
         # include common operations
         source $SCRIPTPATH/.common-operations.sh
+        echo -e "\t\t\t\t----------------------------------------"
         exit 2
         ;;
 esac
