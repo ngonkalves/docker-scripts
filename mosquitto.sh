@@ -11,27 +11,34 @@ set -e
 # script will exit with error when variable not set
 set -u # or set -o nounset
 
+# due to set -u we need to define a default value of empty when no arguments are passed
+# https://stackoverflow.com/questions/43707685/set-u-nounset-vs-checking-whether-i-have-arguments
 case "${1-}" in
 create|build)
         echo -e "---------------------------------\n"
         echo -e "Creating container $CONTAINER\n"
         echo -e "---------------------------------\n"
 
-        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK")
+        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK" || echo "")
+        
+        PORT1_STR=$([[ ! $PORT1 = "" ]] && echo "-p $PORT1:1883" || echo "" )
+        PORT2_STR=$([[ ! $PORT2 = "" ]] && echo "-p $PORT2:8883" || echo "" )
+        PORT3_STR=$([[ ! $PORT3 = "" ]] && echo "-p $PORT3:9001" || echo "" )
 
         docker create \
             --name="$CONTAINER" \
             --user "$PUID:$PGID" \
+            --restart="$RESTART_MODE" \
             $network_option \
-            -e TZ="$TIMEZONE" \
+            $ENVS_STR \
+            $LABELS_STR \
+            -v /etc/localtime:/etc/localtime:ro \
             -v $VOL_DATA:/mosquitto/data \
             -v $VOL_CONFIG:/mosquitto/config \
             -v $VOL_LOG:/mosquitto/log \
-            -v /etc/localtime:/etc/localtime:ro \
-            --restart="$CONTAINER_RESTART_MODE" \
-            -p $PORT1:1883 \
-            -p $PORT2:8883 \
-            -p $PORT3:9001 \
+            $PORT1_STR \
+            $PORT2_STR \
+            $PORT3_STR \
             "$IMAGE"
         exit $?
         ;;
