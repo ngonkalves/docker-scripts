@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-#################################################################################
-# Sources:
-# https://github.com/linuxserver/docker-wireguard
-#################################################################################
 
 SCRIPT=`realpath $0`
 SCRIPTPATH=`dirname $SCRIPT`
@@ -23,23 +19,16 @@ create|build)
         echo -e "Creating container $CONTAINER\n"
         echo -e "---------------------------------\n"
 
+        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK" || echo "")
+
         docker create \
             --name="$CONTAINER" \
-            -e "TZ=$TIMEZONE" \
-            -e "LOG_LEVEL=$LOG_LEVEL" \
-            -e "LOG_JSON=$LOG_JSON" \
-            -e "DIUN_WATCH_WORKERS=$WATCH_WORKERS" \
-            -e "DIUN_WATCH_SCHEDULE=$WATCH_SCHEDULE" \
-            -e "DIUN_PROVIDERS_DOCKER=$PROVIDERS_DOCKER" \
-            -e "DIUN_PROVIDERS_DOCKER_WATCHSTOPPED=$PROVIDERS_DOCKER_WATCHSTOPPED" \
-            -e "DIUN_PROVIDERS_DOCKER_WATCHBYDEFAULT=$PROVIDERS_DOCKER_WATCHBYDEFAULT" \
-            -e "DIUN_NOTIF_TELEGRAM_TOKEN=$TELEGRAM_TOKEN" \
-            -e "DIUN_NOTIF_TELEGRAM_CHATIDS=$TELEGRAM_CHATIDS" \
-            -v $VOL_DATA:/data \
-            -v "/var/run/docker.sock:/var/run/docker.sock:ro" \
-            -l "diun.enable=$ENABLE" \
-            -l "diun.watch_repo=$WATCH_REPO" \
             --restart="$RESTART_MODE" \
+            $network_option \
+            $ENVS_STR \
+            $LABELS_STR \
+			-v "/var/run/docker.sock:/var/run/docker.sock:ro" \
+            -v $VOL_DATA:/data \
             "$IMAGE"
         exit $?
         ;;
