@@ -23,6 +23,7 @@ create|build)
 
 		WEB_PORT_STR=$([[ ! $WEB_PORT = "" ]] && echo "-p $WEB_PORT:3000" || echo "" )
 		SSH_PORT_STR=$([[ ! $SSH_PORT = "" ]] && echo "-p $SSH_PORT:22" || echo "" )
+		
         docker create \
             --name="$CONTAINER" \
             --restart="$RESTART_MODE" \

@@ -16,6 +16,8 @@ set -e
 # script will exit with error when variable not set
 set -u # or set -o nounset
 
+# due to set -u we need to define a default value of empty when no arguments are passed
+# https://stackoverflow.com/questions/43707685/set-u-nounset-vs-checking-whether-i-have-arguments
 case "${1-}" in
 create|build)
         echo -e "---------------------------------\n"
@@ -33,15 +35,20 @@ create|build)
             echo -e "Container data is a docker volume: $VOL_ETC_OPENVPN"
         fi
 
+        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK" || echo "")
+        
+		OVPN_PORT_STR=$([[ ! $OVPN_PORT = "" ]] && echo "-p $OVPN_PORT:1194" || echo "" )
+        
         docker create \
             --name="$CONTAINER" \
-            -e TZ="$TIMEZONE" \
-            -v $VOL_ETC_OPENVPN:/etc/openvpn \
+            --restart="$RESTART_MODE" \
             --privileged \
-            --restart="$CONTAINER_RESTART_MODE" \
             --sysctl net.ipv6.conf.all.disable_ipv6=1 \
-            -p $OVPN_PORT:1194 \
-            -e DEBUG=$DEBUG \
+            $network_option \
+            $ENVS_STR \
+            $LABELS_STR \
+            -v $VOL_ETC_OPENVPN:/etc/openvpn \
+            $OVPN_PORT_STR \
             "$IMAGE"
         exit $?
         ;;
