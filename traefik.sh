@@ -11,6 +11,8 @@ set -e
 # script will exit with error when variable not set
 set -u # or set -o nounset
 
+# due to set -u we need to define a default value of empty when no arguments are passed
+# https://stackoverflow.com/questions/43707685/set-u-nounset-vs-checking-whether-i-have-arguments
 case "${1-}" in
 create|build)
         echo -e "---------------------------------\n"
@@ -19,6 +21,9 @@ create|build)
 
         network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK")
 
+		WEB_PORT_UNSECURE_STR=$([[ ! $WEB_PORT_UNSECURE = "" ]] && echo "-p $WEB_PORT_UNSECURE:80" || echo "" )
+		WEB_PORT_SECURE_STR=$([[ ! $WEB_PORT_SECURE = "" ]] && echo "-p $WEB_PORT_SECURE:443" || echo "" )
+
         docker create \
             --name="$CONTAINER" \
             --security-opt="no-new-privileges:true" \
@@ -26,8 +31,8 @@ create|build)
             $network_option \
             $ENVS_STR \
             $LABELS_STR \
-            -p $PORT_UNSECURE:80 \
-            -p $PORT_SECURE:443 \
+            $WEB_PORT_UNSECURE_STR \
+            $WEB_PORT_SECURE_STR \
             -v /etc/localtime:/etc/localtime:ro \
             -v /var/run/docker.sock:/var/run/docker.sock:ro \
             -v $VOL_DYNAMIC_CONFIG:/etc/traefik/dynamic_conf/config.yml:rw \
