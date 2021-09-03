@@ -11,24 +11,26 @@ set -e
 # script will exit with error when variable not set
 set -u # or set -o nounset
 
+# due to set -u we need to define a default value of empty when no arguments are passed
+# https://stackoverflow.com/questions/43707685/set-u-nounset-vs-checking-whether-i-have-arguments
 case "${1-}" in
 create|build)
         echo -e "---------------------------------\n"
         echo -e "Creating container $CONTAINER\n"
         echo -e "---------------------------------\n"
 
-        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK")
+        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK" || echo "")
 
         docker create \
             --name="$CONTAINER" \
             --privileged=true \
-            $network_option \
             --device $DEVICE:$DEVICE \
-            -e TZ="$TIMEZONE" \
+            --restart="$RESTART_MODE" \
+            $network_option \
             $ENVS_STR \
+            $LABELS_STR \
             -v /run/udev:/run/udev:ro \
             -v $VOL_DATA:/app/data \
-            --restart="$CONTAINER_RESTART_MODE" \
             "$IMAGE"
         exit $?
         ;;
