@@ -19,7 +19,7 @@ create|build)
         echo -e "Creating container $CONTAINER\n"
         echo -e "---------------------------------\n"
 
-        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK" || echo "")
+        network_option=$( [[ ! ${NETWORK-} == "" ]] && echo "--net $NETWORK" || echo "")
 
         WEB_PORT=$([[ ! $PORT = "" ]] && echo "-p $PORT:8080" || echo "" )
 

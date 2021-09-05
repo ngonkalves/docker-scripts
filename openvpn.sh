@@ -35,7 +35,7 @@ create|build)
             echo -e "Container data is a docker volume: $VOL_ETC_OPENVPN"
         fi
 
-        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK" || echo "")
+        network_option=$( [[ ! ${NETWORK-} == "" ]] && echo "--net $NETWORK" || echo "")
         
         OVPN_PORT_STR=$([[ ! $OVPN_PORT = "" ]] && echo "-p $OVPN_PORT:1194" || echo "" )
         

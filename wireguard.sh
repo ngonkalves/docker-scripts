@@ -23,9 +23,9 @@ create|build)
         echo -e "Creating container $CONTAINER\n"
         echo -e "---------------------------------\n"
 
-        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK" || echo "")
+        network_option=$( [[ ! ${NETWORK-} == "" ]] && echo "--net $NETWORK" || echo "")
         
-		SERVERPORT_STR=$([[ ! $SERVERPORT = "" ]] && echo "-p $SERVERPORT:51820/udp" || echo "" )
+        SERVERPORT_STR=$([[ ! $SERVERPORT = "" ]] && echo "-p $SERVERPORT:51820/udp" || echo "" )
 
         docker create \
             --name="$CONTAINER" \
@@ -33,7 +33,7 @@ create|build)
             --cap-add=SYS_MODULE \
             --restart="$RESTART_MODE" \
             --sysctl="net.ipv4.conf.all.src_valid_mark=1" \
-			$network_option \
+            $network_option \
             $ENVS_STR \
             $LABELS_STR \
             -v $VOL_CONFIG:/config \

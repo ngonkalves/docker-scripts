@@ -19,14 +19,14 @@ create|build)
         echo -e "Creating container $CONTAINER\n"
         echo -e "---------------------------------\n"
 
-        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK" || echo "")
+        network_option=$( [[ ! ${NETWORK-} == "" ]] && echo "--net $NETWORK" || echo "")
         
-		WEB_PORT_STR=$([[ ! $WEB_PORT = "" ]] && echo "-p $WEB_PORT:1880" || echo "" )
+        WEB_PORT_STR=$([[ ! $WEB_PORT = "" ]] && echo "-p $WEB_PORT:1880" || echo "" )
 
         docker create \
             --name="$CONTAINER" \
             --user $PUID:$PGID \
-			--restart="$RESTART_MODE" \
+            --restart="$RESTART_MODE" \
             $network_option \
             $ENVS_STR \
             $LABELS_STR \

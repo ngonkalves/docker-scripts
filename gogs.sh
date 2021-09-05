@@ -19,15 +19,15 @@ create|build)
         echo -e "Creating container $CONTAINER\n"
         echo -e "---------------------------------\n"
 
-        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK" || echo "")
+        network_option=$( [[ ! ${NETWORK-} == "" ]] && echo "--net $NETWORK" || echo "")
 
-		WEB_PORT_STR=$([[ ! $WEB_PORT = "" ]] && echo "-p $WEB_PORT:3000" || echo "" )
-		SSH_PORT_STR=$([[ ! $SSH_PORT = "" ]] && echo "-p $SSH_PORT:22" || echo "" )
-		
+        WEB_PORT_STR=$([[ ! $WEB_PORT = "" ]] && echo "-p $WEB_PORT:3000" || echo "" )
+        SSH_PORT_STR=$([[ ! $SSH_PORT = "" ]] && echo "-p $SSH_PORT:22" || echo "" )
+        
         docker create \
             --name="$CONTAINER" \
             --restart="$RESTART_MODE" \
-			$network_option \
+            $network_option \
             $ENVS_STR \
             $LABELS_STR \
             -v $VOL_DATA:/data \

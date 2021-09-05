@@ -27,7 +27,7 @@ create|build)
 
         docker rmi -f $(docker images --format '{{.ID}}' --filter 'reference=$HTPASSWD_IMAGE')
 
-        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK" || echo "" )
+        network_option=$( [[ ! ${NETWORK-} == "" ]] && echo "--net $NETWORK" || echo "" )
 ´
         WEB_PORT_STR=$([[ ! $WEB_PORT = "" ]] && echo "-p $WEB_PORT:9000" || echo "" )
 
