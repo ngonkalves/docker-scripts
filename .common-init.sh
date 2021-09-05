@@ -31,8 +31,8 @@ CONTAINER_NAME="${CONTAINER_PREFIX}-${CONTAINER}"
 
 
 ENVS_STR=""
-[[ -e $ENV_FILE ]] && echo "Loading: $ENV_FILE" && ENVS_STR="--env-file $ENV_FILE"
-[[ -e $ENV_OVERRIDE_FILE ]] && echo "Loading: $ENV_OVERRIDE_FILE" && ENVS_STR=" ${ENVS_STR} --env-file $ENV_OVERRIDE_FILE"
+[[ -e $ENV_FILE ]] && echo "Loading: $ENV_FILE" && ENVS_STR="--env-file $ENV_FILE" && source $ENV_FILE
+[[ -e $ENV_OVERRIDE_FILE ]] && echo "Loading: $ENV_OVERRIDE_FILE" && ENVS_STR=" ${ENVS_STR} --env-file $ENV_OVERRIDE_FILE" && source $ENV_OVERRIDE_FILE
 
 LABELS_STR=""
 [[ -e $LABEL_FILE ]] && echo "Loading: $LABEL_FILE" && LABELS_STR="--label-file $LABEL_FILE"
