@@ -31,9 +31,9 @@ start)
             if [ "$(docker inspect -f "{{.State.Health.Status}}" $CONTAINER)" == "healthy" ] ; then
                 printf ' OK'
                 if docker logs $CONTAINER 2> /dev/null | grep 'password:'; then
-                    echo -e "\n$(docker logs pihole 2> /dev/null | grep 'password:') for your pi-hole: https://${SERVER_IPV4}/admin/"
+                    echo -e "\n$(docker logs pihole 2> /dev/null | grep 'password:') for your pi-hole: http://${ServerIP}/admin/"
                 else
-                    echo -e "\nAdmin webpage: https://${SERVER_IPV4}/admin/"
+                    echo -e "\nAdmin webpage: http://${ServerIP}/admin/"
                 fi
                 exit 0
             else
@@ -46,13 +46,13 @@ start)
         ;;
 create|build)
         echo -e "Creating container $CONTAINER\n"
-        
-        network_option=$( [[ ! $NETWORK == "" ]] && echo "--net $NETWORK" || echo "" )
-        
+
+        network_option=$( [[ ! ${NETWORK-} == "" ]] && echo "--net $NETWORK" || echo "" )
+
         # When containter network is the same as the host, there's no need to map ports
         WEB_PORT_STR=$([[ ! $WEB_PORT = "" ]] && echo "-p $WEB_PORT:80" || echo "" )
         DNS_PORT_STR=$([[ ! $DNS_PORT = "" ]] && echo "-p $DNS_PORT:53" || echo "" )
-        
+
         docker create \
             --name="$CONTAINER" \
             --net=host \
