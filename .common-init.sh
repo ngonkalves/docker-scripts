@@ -1,39 +1,50 @@
+# enable export of any declared variables from now on
+set -a
+# disable auto exporting variables
+#set +a
+
 CURRENT_DIR=$SCRIPTPATH
 
 CURRENT_FILE=$SCRIPT
 
-FILE_NO_EXTENSION="${CURRENT_FILE%%.*}"
-
-source $CURRENT_DIR/.common-functions.sh
-
-FILE_VARS="${FILE_NO_EXTENSION}.conf"
-OVERRIDE_FILE_VARS="${FILE_NO_EXTENSION}.override.conf"
-
-ENV_FILE="${FILE_NO_EXTENSION}.env.conf"
-ENV_OVERRIDE_FILE="${FILE_NO_EXTENSION}.env.override.conf"
-
-LABEL_FILE="${FILE_NO_EXTENSION}.label.conf"
-LABEL_OVERRIDE_FILE="${FILE_NO_EXTENSION}.label.override.conf"
-
-# load file with variables if exists
-[[ -e $FILE_VARS ]] && source $FILE_VARS
-
-[[ ! -e $FILE_VARS ]] && echo -e "Variables file doesn't exist: $FILE_VARS" && exit 1
-
-[[ -e $OVERRIDE_FILE_VARS ]] && echo "Loading override file: $OVERRIDE_FILE_VARS" && source $OVERRIDE_FILE_VARS
-
+CURRENT_DIR_NAME=`basename $CURRENT_DIR`
+#echo "CURRENT_DIR_NAME: $CURRENT_DIR_NAME"
 
 # add docker container prefix
 CONTAINER_PREFIX="ds"
-CONTAINER_SIMPLE_NAME="$CONTAINER"
-CONTAINER="${CONTAINER_PREFIX}-${CONTAINER}"
-CONTAINER_NAME="${CONTAINER_PREFIX}-${CONTAINER}"
+CONTAINER="${CONTAINER_PREFIX}-${CURRENT_DIR_NAME}"
 
+source $PARENTPATH/.common-functions.sh
 
-ENVS_STR=""
-[[ -e $ENV_FILE ]] && echo "Loading: $ENV_FILE" && ENVS_STR="--env-file $ENV_FILE" && source $ENV_FILE
-[[ -e $ENV_OVERRIDE_FILE ]] && echo "Loading: $ENV_OVERRIDE_FILE" && ENVS_STR=" ${ENVS_STR} --env-file $ENV_OVERRIDE_FILE" && source $ENV_OVERRIDE_FILE
+VAR_FILE=$(create_conf_filename var)
+VAR_OVERRIDE_FILE=$(create_conf_override_filename $VAR_FILE)
 
-LABELS_STR=""
-[[ -e $LABEL_FILE ]] && echo "Loading: $LABEL_FILE" && LABELS_STR="--label-file $LABEL_FILE"
-[[ -e $LABEL_OVERRIDE_FILE ]] && echo "Loading: $LABEL_OVERRIDE_FILE" && LABELS_STR="${LABELS_STR} --label-file $LABEL_OVERRIDE_FILE"
+# load file with variables if exists
+[ -e $VAR_FILE ] && source $VAR_FILE
+[ -e $VAR_OVERRIDE_FILE ] && source $VAR_OVERRIDE_FILE
+
+[ ! -e $VAR_FILE ] && [ ! -e $VAR_OVERRIDE_FILE ] && echo -e "Files don't exist (quitting): $VAR_FILE | $VAR_OVERRIDE_FILE" && exit 1
+
+ENV_FILE=$(create_conf_filename env)
+ENV_OVERRIDE_FILE=$(create_conf_override_filename $ENV_FILE)
+
+LABEL_FILE=$(create_conf_filename label)
+LABEL_OVERRIDE_FILE=$(create_conf_override_filename $LABEL_FILE)
+
+OPTION_FILE=$(create_conf_filename option)
+OPTION_OVERRIDE_FILE=$(create_conf_override_filename $OPTION_FILE)
+
+PORT_FILE=$(create_conf_filename port)
+PORT_OVERRIDE_FILE=$(create_conf_override_filename $PORT_FILE)
+
+NETWORK_FILE=$(create_conf_filename network)
+NETWORK_OVERRIDE_FILE=$(create_conf_override_filename $NETWORK_FILE)
+
+LINK_FILE=$(create_conf_filename link)
+LINK_OVERRIDE_FILE=$(create_conf_override_filename $LINK_FILE)
+
+VOLUME_FILE=$(create_conf_filename volume)
+VOLUME_OVERRIDE_FILE=$(create_conf_override_filename $VOLUME_FILE)
+
+COMMAND_FILE=$(create_conf_filename command)
+COMMAND_OVERRIDE_FILE=$(create_conf_override_filename $COMMAND_FILE)

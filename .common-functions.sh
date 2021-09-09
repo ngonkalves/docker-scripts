@@ -1,3 +1,166 @@
+function docker_create() {
+    local container="$1"
+    echo -e "---------------------------------\n"
+    echo -e "Creating container $container\n"
+    echo -e "---------------------------------\n"
+
+    # call pre function
+    [ $(type -t pre_docker_create)"" = "function" ] && pre_docker_create $container
+
+    load_all
+
+    docker create \
+        --name="$container" \
+        $OPTION_STR \
+        $NETWORK_STR \
+        $ENV_STR \
+        $LABEL_STR \
+        $VOLUME_STR \
+        $PORT_STR \
+        $SECRET_STR \
+        $IMAGE \
+        $COMMAND_STR
+}
+
+function docker_start() {
+    local container="$1"
+    echo -e "---------------------------------\n"
+    echo -e "Starting container $container\n"
+    echo -e "---------------------------------\n"
+    docker_create_network ${NETWORK-}
+    docker start $container
+    printf '\nStarting up %s container\n\n' "$container"
+    docker_logf $container
+
+    # call post  function
+    [ $(type -t post_docker_start)"" = "function" ] && post_docker_start $container
+}
+
+function docker_stop() {
+    local container="$1"
+    echo -e "---------------------------------\n"
+    echo -e "Stopping container $container\n"
+    echo -e "---------------------------------\n"
+    docker stop $container &> /dev/null || echo "Container doesn't exist"
+}
+
+function docker_restart() {
+    local container="$1"
+    echo -e "---------------------------------\n"
+    echo -e "Restarting container $container\n"
+    echo -e "---------------------------------\n"
+    docker restart $container
+}
+
+function docker_remove() {
+    local container="$1"
+    echo -e "---------------------------------\n"
+    echo -e "Remove container $container\n"
+    echo -e "---------------------------------\n"
+    docker_stop $container
+    docker container rm $container || true
+}
+
+function docker_pull() {
+    local image="$1"
+    echo -e "---------------------------------\n"
+    echo -e "Pulling container image $IMAGE\n"
+    echo -e "---------------------------------\n"
+    docker pull $IMAGE
+}
+
+function docker_recreate() {
+    local container="$1"
+    echo -e "---------------------------------\n"
+    echo -e "Rebuilding container $container\n"
+    echo -e "---------------------------------\n"
+    docker_stop $container
+    docker_remove $container
+    docker_pull $container
+    docker_create $container
+    echo -e "---------------------------------\n"
+    echo -e "---------------------------------\n"
+    docker container ls -a -f name=$container
+    echo -e "---------------------------------\n"
+    echo -e "---------------------------------\n"
+    docker_start $container
+}
+
+function docker_cp() {
+    local container="$1"
+    echo -e "---------------------------------\n"
+    echo -e "Copying from container $container\n"
+    echo -e "---------------------------------\n"
+    [ -z ${2+x} ] && echo "source path not defined" && exit 1
+    [ -z ${3+x} ] && echo "target path not defined" && exit 1
+    docker cp "$container":"$2" "$3"
+}
+
+function docker_create_network() {
+    local network="${1-}"
+    if [[ ! ${network-} == "" ]]; then
+        echo -e "---------------------------------\n"
+        echo -e "Creating network $network\n"
+        echo -e "---------------------------------\n"
+        create_network_if_not_exists "$network"
+    fi
+}
+
+function docker_remove_network() {
+    local network="$1"
+    #if [[ ! ${network-} == "" ]]; then
+        # TODO: remove network if not in use
+    #fi
+}
+
+function docker_exec_terminal() {
+    local container="$1"
+    echo -e "---------------------------------\n"
+    echo -e "Accessing terminal $container\n"
+    echo -e "---------------------------------\n"
+    docker exec -it $container /bin/sh
+}
+
+function docker_exec_uname() {
+    local container="$1"
+    echo -e "---------------------------------\n"
+    echo -e "Execute command for container $container\n"
+    echo -e "---------------------------------\n"
+    docker exec -it $container uname -a
+}
+
+function docker_log() {
+    local container="$1"
+    echo -e "---------------------------------\n"
+    echo -e "     Accessing logs: $container\n  "
+    echo -e "---------------------------------\n"
+    docker logs $container
+}
+
+function docker_logf() {
+    local container="$1"
+    echo -e "---------------------------------\n"
+    echo -e "     Accessing logs: $container\n  "
+    echo -e "---------------------------------\n"
+    docker logs -f $container
+}
+
+function docker_inspect() {
+    local container="$1"
+    echo -e "---------------------------------\n"
+    echo -e "     Inspecting: $container\n  "
+    echo -e "---------------------------------\n"
+    docker inspect $container
+}
+
+function docker_ps() {
+    local container="$1"
+    echo -e "---------------------------------\n"
+    echo -e "     Status: $container\n  "
+    echo -e "---------------------------------\n"
+    docker ps -a -f name=$container
+}
+
 function container_exists() {
      local container="$1"
      local num_containers=$(docker container ls -a -q -f name=$container | wc -l)
@@ -43,3 +206,211 @@ function create_network_if_not_exists() {
         fi
     fi
 }
+
+
+function remove_config() {
+    local container="$1"
+    read -r -p "Do you really want to remove all configuration files? [y/N] " option
+    case ${option-} in
+        [yY][eE][sS]|[yY])
+            docker_stop $container || true
+            read -r -p "Are you really sure you want to remove $CURRENT_DIR/volumes/$container? [y/N] " option2
+            case ${option2-} in
+                [yY][eE][sS]|[yY])
+                    rm -rvf $CURRENT_DIR/volumes/$container
+                ;;
+                *)
+                    echo "Nothing was done!"
+                    exit 0
+                ;;
+            esac;
+            ;;
+        *)
+            echo "Nothing was done!"
+            exit 0
+        ;;
+    esac;
+}
+
+
+function create_folder_structure() {
+    folders=(${FOLDERS-})
+    for folder in ${folders[@]}; do
+        echo "processing folder: $folder"
+        if [[ ! -x "$folder" ]]; then
+            mkdir -p "$folder"
+        fi
+        echo "change permissions: $folder"
+        chown "${PUID=`id -u`}":"${PGID=`id -g`}" "$folder"
+        chmod 770 "$folder"
+    done;
+    files=(${FILES-})
+    for file in ${files[@]}; do
+        echo "processing file: $file"
+        if [[ ! -e "$file" ]]; then
+            touch "$file"
+        fi
+        echo "change permissions: $file"
+        chown "${PUID=`id -u`}":"${PGID=`id -g`}" "$file"
+        chmod 660 "$file"
+    done;
+}
+
+
+function create_conf_filename() {
+    local filename="$1"
+    echo "${filename}.conf"
+}
+
+function create_conf_override_filename() {
+    local filename="$1"
+    if [[ "$filename" =~ \.conf$ ]]; then
+        echo "${filename/.conf/.override.conf}"
+    else
+        echo "${filename}.override.conf"
+    fi
+}
+
+function read_conf() {
+    local conf_path="$1"
+    local override_conf_path="$2"
+    local result=""
+    if [ -e $override_conf_path ]; then
+        result=$(read_conf_file $override_conf_path)
+    elif [ -e $conf_path ]; then
+        result=$(read_conf_file $conf_path)
+    fi
+    echo "$result"
+}
+
+function read_conf_file() {
+    local result=""
+    local conf_path="$1"
+    local filename="${conf_path##*/}"
+    # test filename only
+    if [[ $filename =~ ^port\. ]]; then
+        result=$(read_file "--publish" $conf_path)
+    elif [[ $filename =~ ^network\. ]]; then
+        result=$(read_file "--network" $conf_path)
+    elif [[ $filename =~ ^volume\. ]]; then
+        result=$(read_file "--volume" $conf_path)
+    elif [[ $filename =~ ^link\. ]]; then
+        result=$(read_file "--link" $conf_path)
+    else
+        result=$(read_file "" $conf_path)
+    fi
+    echo "$result"
+}
+
+function read_file() {
+    local result=""
+    local line_prefix="$1"
+    local file_path="$2"
+    if [[ -e $file_path ]]; then
+        readarray -t lines < "$file_path"
+
+        for line in "${lines[@]}"; do
+            # Skip lines starting with sharp
+            # or lines containing only space or empty lines
+            [[ "$line" =~ ^([[:space:]]*|[[:space:]]*#.*)$ ]] && continue
+            # test if variable is empty
+            if [ -z "$line_prefix" ]; then
+                result="${result}$line "
+            else
+                result="${result}$line_prefix $line "
+            fi
+        done
+    fi
+    echo "$result"
+}
+
+# creates the option to pass a file to docker
+function get_conf_file_arg() {
+    local prefix="$1"
+    local conf_path="$2"
+    local override_conf_path="$3"
+    local conf_path_gen="$conf_path.generated"
+    local override_conf_path_gen="$override_conf_path.generated"
+    local result=""
+    # do variable substitution on file
+    [ -e $conf_path ] && \grep "\\$" $conf_path > /dev/null 2>&1 && envsubst < $conf_path > $conf_path_gen && conf_path=$conf_path_gen
+
+    [ -e $override_conf_path ] && \grep "\\$" $override_conf_path > /dev/null 2>&1 && envsubst < $override_conf_path > $override_conf_path_gen && override_conf_path=$override_conf_path_gen
+
+    # defining result depending on existing files
+    [ -e $conf_path ] && result="$prefix $conf_path"
+
+    [ -e $override_conf_path ] && result="$result $prefix $override_conf_path"
+
+    echo "$result"
+}
+
+# load params
+function load_option() {
+    OPTION_STR=$(read_conf $OPTION_FILE $OPTION_OVERRIDE_FILE)
+    OPTION_STR=$(echo $OPTION_STR | envsubst)
+    echo "OPTION_STR: $OPTION_STR"
+}
+
+function load_port() {
+    PORT_STR=$(read_conf $PORT_FILE $PORT_OVERRIDE_FILE)
+    PORT_STR=$(echo $PORT_STR | envsubst)
+    echo "PORT_STR: $PORT_STR"
+}
+
+function load_network() {
+    NETWORK_STR=$(read_conf $NETWORK_FILE $NETWORK_OVERRIDE_FILE)
+    NETWORK_STR=$(echo $NETWORK_STR | envsubst)
+    echo "NETWORK_STR: $NETWORK_STR"
+}
+
+function load_link() {
+    LINK_STR=$(read_conf $LINK_FILE $LINK_OVERRIDE_FILE)
+    LINK_STR=$(echo $LINK_STR | envsubst)
+    echo "LINK_STR: $LINK_STR"
+}
+
+function load_volume() {
+    VOLUME_STR=$(read_conf $VOLUME_FILE $VOLUME_OVERRIDE_FILE)
+    VOLUME_STR=$(echo $VOLUME_STR | envsubst)
+    echo "VOLUME_STR: $VOLUME_STR"
+}
+
+function load_command() {
+    COMMAND_STR=$(read_conf $COMMAND_FILE $COMMAND_OVERRIDE_FILE)
+    COMMAND_STR=$(echo $COMMAND_STR | envsubst)
+    echo "COMMAND_STR: $COMMAND_STR"
+}
+
+function load_env() {
+    ENV_STR=$(get_conf_file_arg "--env-file" "$ENV_FILE" "$ENV_OVERRIDE_FILE")
+    echo "ENV_STR: $ENV_STR"
+}
+
+function load_label() {
+    LABEL_STR=$(get_conf_file_arg "--label-file" "$LABEL_FILE" "$LABEL_OVERRIDE_FILE")
+    echo "LABEL_STR: $LABEL_STR"
+}
+
+function load_secret() {
+    SECRET_STR=""
+    for file in $(find $CURRENT_DIR -maxdepth 1 -type f -name 'secret_*'); do
+        secret_name=${file##*/}
+        secret_name=${secret_name/secret_/}
+        SECRET_STR="$SECRET_STR--volume ${file}:/run/secrets/$secret_name "
+    done
+    echo "SECRET_STR: $SECRET_STR"
+}
+
+function load_all() {
+    load_option
+    load_port
+    load_network
+    load_link
+    load_volume
+    load_command
+    load_env
+    load_label
+    load_secret
+}
+

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+SCRIPT=`realpath $0`
+SCRIPTPATH=`dirname $SCRIPT`
+PARENTPATH=`dirname $SCRIPTPATH`
+
+# include init
+source $PARENTPATH/.common-init.sh
+
+# to abort the script if any command returns a failure (nonzero) status
+set -e
+# script will exit with error when variable not set
+set -u # or set -o nounset
+
+# due to set -u we need to define a default value of empty when no arguments are passed
+# https://stackoverflow.com/questions/43707685/set-u-nounset-vs-checking-whether-i-have-arguments
+case "${1-}" in
+###########################################################
+# PUT HERE SPECIFIC CONTAINER FUNCTIONALITY - start       #
+###########################################################
+
+
+###########################################################
+# PUT HERE SPECIFIC CONTAINER FUNCTIONALITY - end         #
+###########################################################
+*)
+    # include common operations
+    source $PARENTPATH/.common-operations.sh
+    echo -e "\n----------------------------------------"
+    exit 2
+    ;;
+esac
+exit 0

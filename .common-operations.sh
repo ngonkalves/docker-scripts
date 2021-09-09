@@ -1,188 +1,75 @@
 
 
 case "${1-}" in
+create|build)
+    docker_create $CONTAINER
+    ;;
 start)
-        echo -e "---------------------------------\n"
-        echo -e "Starting container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        $0 create-network
-        docker start $CONTAINER
-        printf '\nStarting up %s container\n\n' "$CONTAINER"
-        $0 logf
-        exit $?
-        ;;
+    docker_start $CONTAINER
+    ;;
 stop)
-        echo -e "---------------------------------\n"
-        echo -e "Stopping container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        docker stop $CONTAINER
-        exit $?
-        ;;
+    docker_stop $CONTAINER
+    ;;
 restart)
-        echo -e "---------------------------------\n"
-        echo -e "Restarting container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        docker restart $CONTAINER
-        exit $?
-        ;;
+    docker_restart $CONTAINER
+    ;;
 remove)
-        echo -e "---------------------------------\n"
-        echo -e "Remove container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        $0 stop
-        docker container rm $CONTAINER
-        exit $?
-        ;;
+    docker_remove $CONTAINER
+    ;;
 pull)
-        echo -e "---------------------------------\n"
-        echo -e "Pulling container image $IMAGE\n"
-        echo -e "---------------------------------\n"
-        docker pull $IMAGE
-        exit $?
-        ;;
+    docker_pull $IMAGE
+    ;;
 cp)
-        echo -e "---------------------------------\n"
-        echo -e "Copying from container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        [ -z ${2+x} ] && echo "source path not defined" && exit 1
-        [ -z ${3+x} ] && echo "target path not defined" && exit 1
-        docker cp "$CONTAINER":"$2" "$3"
-        exit $?
-        ;;
+    docker_cp $CONTAINER $2 $3
+    ;;
 recreate|rebuild)
-        echo -e "---------------------------------\n"
-        echo -e "Rebuilding container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        $0 stop &> /dev/null || echo "Container doesn't exist"
-        $0 remove &> /dev/null || echo "Container doesn't exist"
-        $0 pull
-        $0 create
-        echo -e "---------------------------------\n"
-        echo -e "---------------------------------\n"
-        docker container ls -a -f name=$CONTAINER
-        echo -e "---------------------------------\n"
-        echo -e "---------------------------------\n"
-        $0 start
-        exit $?
-        ;;
+    docker_recreate $CONTAINER
+    ;;
 create-network)
-        if [[ ! ${NETWORK-} == "" ]]; then
-            echo -e "---------------------------------\n"
-            echo -e "Creating network $NETWORK\n"
-            echo -e "---------------------------------\n"
-            create_network_if_not_exists "$NETWORK"
-            exit $?
-        fi
-        exit 0
-        ;;
+    docker_create_network $NETWORK
+    ;;
 remove-network)
-        #if [[ ! ${NETWORK-} == "" ]]; then
-            # TODO: remove network if not in use
-        #fi
-        ;;
+    docker_remove_network $NETWORK
+    ;;
 remove-config)
-        read -r -p "Do you really want to remove all configuration files? [y/N] " option
-        case ${option-} in
-            [yY][eE][sS]|[yY])
-                $0 stop || true
-                read -r -p "Are you really sure you want to remove $CURRENT_DIR/volumes/$CONTAINER_SIMPLE_NAME? [y/N] " option2
-                case ${option2-} in
-                    [yY][eE][sS]|[yY])
-                        rm -rvf $CURRENT_DIR/volumes/$CONTAINER_SIMPLE_NAME
-                    ;;
-                    *)
-                        echo "Nothing was done!"
-                        exit 0
-                    ;;
-                esac;
-                ;;
-            *)
-                echo "Nothing was done!"
-                exit 0
-            ;;
-        esac;
-        exit 0
-        ;;
+    remove_config $CONTAINER
+    ;;
 create-folder-structure)
-         folders=(${FOLDERS-})
-         for folder in ${folders[@]}; do
-             echo "processing folder: $folder"
-             if [[ ! -x "$folder" ]]; then
-                 mkdir -p "$folder"
-             fi
-             echo "change permissions: $folder"
-             chown "${PUID=`id -u`}":"${PGID=`id -g`}" "$folder"
-             chmod 770 "$folder"
-         done;
-         files=(${FILES-})
-         for file in ${files[@]}; do
-             echo "processing file: $file"
-             if [[ ! -e "$file" ]]; then
-                 touch "$file"
-             fi
-             echo "change permissions: $file"
-             chown "${PUID=`id -u`}":"${PGID=`id -g`}" "$file"
-             chmod 660 "$file"
-         done;
-         exit 0
-        ;;
+    create_folder_structure
+    ;;
 terminal|console)
-        echo -e "---------------------------------\n"
-        echo -e "Accessing terminal $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        docker exec -it $CONTAINER /bin/sh
-        exit $?
-        ;;
+    docker_exec_terminal $CONTAINER
+    ;;
 uname)
-        echo -e "---------------------------------\n"
-        echo -e "Execute command for container $CONTAINER\n"
-        echo -e "---------------------------------\n"
-        docker exec -it $CONTAINER uname -a
-        exit $?
-        ;;
+    docker_exec_uname $CONTAINER
+    ;;
 log)
-        echo -e "---------------------------------\n"
-        echo -e "     Accessing logs: $CONTAINER\n  "
-        echo -e "---------------------------------\n"
-        docker logs $CONTAINER
-        exit $?
-        ;;
+    docker_log $CONTAINER
+    ;;
 logf)
-        echo -e "---------------------------------\n"
-        echo -e "     Accessing logs: $CONTAINER\n  "
-        echo -e "---------------------------------\n"
-        docker logs -f $CONTAINER
-        exit $?
-        ;;
+    docker_logf $CONTAINER
+    ;;
 inspect)
-        echo -e "---------------------------------\n"
-        echo -e "     Inspecting: $CONTAINER\n  "
-        echo -e "---------------------------------\n"
-        docker inspect $CONTAINER
-        exit $?
-        ;;
+    docker_inspect $CONTAINER
+    ;;
 status)
-        echo -e "---------------------------------\n"
-        echo -e "     Status: $CONTAINER\n  "
-        echo -e "---------------------------------\n"
-        docker ps -a -f name=$CONTAINER
-        exit $?
-        ;;
+    docker_ps $CONTAINER
+    ;;
 *)
-        echo -e "
-        Usage: $0
-                                 start | stop | restart | status
-                                 remove
-                                 create | recreate
-                                 create-network | remove-network
-                                 remove-config
-                                 terminal | console
-                                 pull
-                                 cp [source_path] [target_path]
-                                 uname
-                                 log
-                                 logf
-                                 inspect
-                                 status"
-        ;;
+    echo -e "
+    Usage: $0
+                             start | stop | restart | status
+                             remove
+                             create | recreate
+                             create-network | remove-network
+                             remove-config
+                             terminal | console
+                             pull
+                             cp [source_path] [target_path]
+                             uname
+                             log
+                             logf
+                             inspect
+                             status"
+    ;;
 esac;
