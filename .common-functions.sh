@@ -12,7 +12,7 @@ function docker_create() {
     docker create \
         --name="$container" \
         $OPTION_STR \
-        $NETWORK_STR \
+        $NET_JOIN_STR \
         $ENV_STR \
         $LABEL_STR \
         $VOLUME_STR \
@@ -27,7 +27,7 @@ function docker_start() {
     echo -e "---------------------------------\n"
     echo -e "Starting container $container\n"
     echo -e "---------------------------------\n"
-    docker_create_network ${NETWORK-}
+    docker_create_network
     docker start $container
     printf '\nStarting up %s container\n\n' "$container"
     docker_logf $container
@@ -97,20 +97,47 @@ function docker_cp() {
 }
 
 function docker_create_network() {
-    local network="${1-}"
-    if [[ ! ${network-} == "" ]]; then
-        echo -e "---------------------------------\n"
-        echo -e "Creating network $network\n"
-        echo -e "---------------------------------\n"
-        create_network_if_not_exists "$network"
+    local filename=""
+    if [ -e $NET_CREATE_OVERRIDE_FILE ]; then
+        filename="$NET_CREATE_OVERRIDE_FILE"
+    elif [ -e $NET_CREATE_FILE ]; then
+        filename="$NET_CREATE_FILE"
+    fi
+    if [ -n "$filename"  ]; then
+        readarray -t lines < "$filename"
+
+        for line in "${lines[@]}"; do
+            # Skip lines starting with sharp
+            # or lines containing only space or empty lines
+            [[ "$line" =~ ^([[:space:]]*|[[:space:]]*#.*)$ ]] && continue
+            local network="${line##* }"
+            if [[ ! ${network-} == "" ]]; then
+                create_network_if_not_exists "$line"
+            fi
+        done
     fi
 }
 
 function docker_remove_network() {
-    local network="$1"
-    #if [[ ! ${network-} == "" ]]; then
-        # TODO: remove network if not in use
-    #fi
+    local filename=""
+    if [ -e $NET_CREATE_OVERRIDE_FILE ]; then
+        filename="$NET_CREATE_OVERRIDE_FILE"
+    elif [ -e $NET_CREATE_FILE ]; then
+        filename="$NET_CREATE_FILE"
+    fi
+    if [ -n "$filename"  ]; then
+        readarray -t lines < "$filename"
+
+        for line in "${lines[@]}"; do
+            # Skip lines starting with sharp
+            # or lines containing only space or empty lines
+            [[ "$line" =~ ^([[:space:]]*|[[:space:]]*#.*)$ ]] && continue
+            local network="${line##* }"
+            if [[ ! ${network-} == "" ]]; then
+                remove_network_if_exists "$network"
+            fi
+        done
+    fi
 }
 
 function docker_exec_terminal() {
@@ -180,8 +207,7 @@ function network_exists() {
 }
 
 function create_network() {
-    local network="$1"
-    local num_created_networks=$(docker network create $network | wc -l)
+    local num_created_networks=$(docker network create $@ | wc -l)
     [[ $num_created_networks == "1" ]] && echo "true" || echo "false"
 }
 
@@ -192,13 +218,15 @@ function remove_network() {
 }
 
 function create_network_if_not_exists() {
-    local network="$1"
+    local network="${1##* }"
     local exists=$(network_exists $network)
     if [[ $exists == "true" ]]; then
         echo "Network $network already exist, skipping..."
     else
-        echo "Network $network doesn't exist, creating..."
-        local created=$(create_network $network)
+        echo -e "---------------------------------\n"
+        echo -e "Creating network $network\n"
+        echo -e "---------------------------------\n"
+        local created=$(create_network $@)
         if [[ $created == "true" ]]; then
             echo "Network $network created successfully"
         else
@@ -207,6 +235,23 @@ function create_network_if_not_exists() {
     fi
 }
 
+function remove_network_if_exists() {
+    local network="${1}"
+    local exists=$(network_exists $network)
+    if [[ $exists == "true" ]]; then
+        echo -e "---------------------------------\n"
+        echo -e "Remove network $network\n"
+        echo -e "---------------------------------\n"
+        local removed=$(remove_network $@)
+        if [[ $removed == "true" ]]; then
+            echo "Network $network removed successfully"
+        else
+            echo "Network $network removal failed"
+        fi
+    else
+        echo "Network $network doesn't exist, skipping..."
+    fi
+}
 
 function remove_config() {
     local container="$1"
@@ -290,7 +335,7 @@ function read_conf_file() {
     # test filename only
     if [[ $filename =~ ^port\. ]]; then
         result=$(read_file "--publish" $conf_path)
-    elif [[ $filename =~ ^network\. ]]; then
+    elif [[ $filename =~ ^network\.join\. ]]; then
         result=$(read_file "--network" $conf_path)
     elif [[ $filename =~ ^volume\. ]]; then
         result=$(read_file "--volume" $conf_path)
@@ -358,10 +403,16 @@ function load_port() {
     echo "PORT_STR: $PORT_STR"
 }
 
-function load_network() {
-    NETWORK_STR=$(read_conf $NETWORK_FILE $NETWORK_OVERRIDE_FILE)
-    NETWORK_STR=$(echo $NETWORK_STR | envsubst)
-    echo "NETWORK_STR: $NETWORK_STR"
+function load_net_create() {
+    NET_CREATE_STR=$(read_conf $NET_CREATE_FILE $NET_CREATE_OVERRIDE_FILE)
+    NET_CREATE_STR=$(echo $NET_CREATE_STR | envsubst)
+    echo "NET_CREATE_STR: $NET_CREATE_STR"
+}
+
+function load_net_join() {
+    NET_JOIN_STR=$(read_conf $NET_JOIN_FILE $NET_JOIN_OVERRIDE_FILE)
+    NET_JOIN_STR=$(echo $NET_JOIN_STR | envsubst)
+    echo "NET_JOIN_STR: $NET_JOIN_STR"
 }
 
 function load_link() {
@@ -405,7 +456,8 @@ function load_secret() {
 function load_all() {
     load_option
     load_port
-    load_network
+    load_net_create
+    load_net_join
     load_link
     load_volume
     load_command

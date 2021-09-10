@@ -26,10 +26,10 @@ recreate|rebuild)
     docker_recreate $CONTAINER
     ;;
 create-network)
-    docker_create_network $NETWORK
+    docker_create_network
     ;;
 remove-network)
-    docker_remove_network $NETWORK
+    docker_remove_network
     ;;
 remove-config)
     remove_config $CONTAINER

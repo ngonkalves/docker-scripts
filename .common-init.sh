@@ -37,8 +37,11 @@ OPTION_OVERRIDE_FILE=$(create_conf_override_filename $OPTION_FILE)
 PORT_FILE=$(create_conf_filename port)
 PORT_OVERRIDE_FILE=$(create_conf_override_filename $PORT_FILE)
 
-NETWORK_FILE=$(create_conf_filename network)
-NETWORK_OVERRIDE_FILE=$(create_conf_override_filename $NETWORK_FILE)
+NET_CREATE_FILE=$(create_conf_filename network.create)
+NET_CREATE_OVERRIDE_FILE=$(create_conf_override_filename $NET_CREATE_FILE)
+
+NET_JOIN_FILE=$(create_conf_filename network.join)
+NET_JOIN_OVERRIDE_FILE=$(create_conf_override_filename $NET_JOIN_FILE)
 
 LINK_FILE=$(create_conf_filename link)
 LINK_OVERRIDE_FILE=$(create_conf_override_filename $LINK_FILE)
