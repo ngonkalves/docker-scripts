@@ -1,16 +1,7 @@
 #!/usr/bin/env bash
 
-SCRIPT=`realpath $0`
-SCRIPTPATH=`dirname $SCRIPT`
-PARENTPATH=`dirname $SCRIPTPATH`
-
 # include init
-source $PARENTPATH/.common-init.sh
-
-# to abort the script if any command returns a failure (nonzero) status
-set -e
-# script will exit with error when variable not set
-set -u # or set -o nounset
+source $(realpath $0 | xargs dirname | xargs dirname)/.common-init.sh
 
 function pre_docker_create() {
     ## if is a folder path, chech if exists
@@ -132,8 +123,6 @@ retr-client-config)
                                  generate-client-nopass | generate-client
                                  revoke-client-remove | revoke-client
                                  retrieve-client-config"
-    echo -e "\n----------------------------------------"
-    exit 2
     ;;
 esac
 exit 0

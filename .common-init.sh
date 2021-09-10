@@ -1,53 +1,56 @@
 # enable export of any declared variables from now on
-set -a
-# disable auto exporting variables
-#set +a
+set -a # disable auto exporting variables #set +a
+# to abort the script if any command returns a failure (nonzero) status
+set -e
+# script will exit with error when variable not set
+set -u # or set -o nounset
 
-CURRENT_DIR=$SCRIPTPATH
+CURRENT_DIR=$(realpath $0 | xargs dirname)
 
-CURRENT_FILE=$SCRIPT
+PARENTPATH=`dirname $CURRENT_DIR`
 
 CURRENT_DIR_NAME=`basename $CURRENT_DIR`
-#echo "CURRENT_DIR_NAME: $CURRENT_DIR_NAME"
 
 # add docker container prefix
 CONTAINER_PREFIX="ds"
+
 CONTAINER="${CONTAINER_PREFIX}-${CURRENT_DIR_NAME}"
 
 source $PARENTPATH/.common-functions.sh
 
-VAR_FILE=$(create_conf_filename var)
-VAR_OVERRIDE_FILE=$(create_conf_override_filename $VAR_FILE)
+# define file paths
+VAR_FILE=$CURRENT_DIR/$(create_conf_filename var)
+VAR_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename var)
 
-# load file with variables if exists
+# load file with variables if exist
 [ -e $VAR_FILE ] && source $VAR_FILE
 [ -e $VAR_OVERRIDE_FILE ] && source $VAR_OVERRIDE_FILE
 
-[ ! -e $VAR_FILE ] && [ ! -e $VAR_OVERRIDE_FILE ] && echo -e "Files don't exist (quitting): $VAR_FILE | $VAR_OVERRIDE_FILE" && exit 1
+[ ! -e $VAR_FILE ] && [ ! -e $VAR_OVERRIDE_FILE ] && echo -e "Var files don't exist (quitting): ${VAR_FILE##*/} | ${VAR_OVERRIDE_FILE##*/}" && exit 1
 
-ENV_FILE=$(create_conf_filename env)
-ENV_OVERRIDE_FILE=$(create_conf_override_filename $ENV_FILE)
+ENV_FILE=$CURRENT_DIR/$(create_conf_filename env)
+ENV_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename env)
 
-LABEL_FILE=$(create_conf_filename label)
-LABEL_OVERRIDE_FILE=$(create_conf_override_filename $LABEL_FILE)
+LABEL_FILE=$CURRENT_DIR/$(create_conf_filename label)
+LABEL_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename label)
 
-OPTION_FILE=$(create_conf_filename option)
-OPTION_OVERRIDE_FILE=$(create_conf_override_filename $OPTION_FILE)
+OPTION_FILE=$CURRENT_DIR/$(create_conf_filename option)
+OPTION_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename option)
 
-PORT_FILE=$(create_conf_filename port)
-PORT_OVERRIDE_FILE=$(create_conf_override_filename $PORT_FILE)
+PORT_FILE=$CURRENT_DIR/$(create_conf_filename port)
+PORT_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename port)
 
-NET_CREATE_FILE=$(create_conf_filename network.create)
-NET_CREATE_OVERRIDE_FILE=$(create_conf_override_filename $NET_CREATE_FILE)
+NET_CREATE_FILE=$CURRENT_DIR/$(create_conf_filename network.create)
+NET_CREATE_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename network.create)
 
-NET_JOIN_FILE=$(create_conf_filename network.join)
-NET_JOIN_OVERRIDE_FILE=$(create_conf_override_filename $NET_JOIN_FILE)
+NET_JOIN_FILE=$CURRENT_DIR/$(create_conf_filename network.join)
+NET_JOIN_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename network.join)
 
-LINK_FILE=$(create_conf_filename link)
-LINK_OVERRIDE_FILE=$(create_conf_override_filename $LINK_FILE)
+LINK_FILE=$CURRENT_DIR/$(create_conf_filename link)
+LINK_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename link)
 
-VOLUME_FILE=$(create_conf_filename volume)
-VOLUME_OVERRIDE_FILE=$(create_conf_override_filename $VOLUME_FILE)
+VOLUME_FILE=$CURRENT_DIR/$(create_conf_filename volume)
+VOLUME_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename volume)
 
-COMMAND_FILE=$(create_conf_filename command)
-COMMAND_OVERRIDE_FILE=$(create_conf_override_filename $COMMAND_FILE)
+COMMAND_FILE=$CURRENT_DIR/$(create_conf_filename command)
+COMMAND_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename command)

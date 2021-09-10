@@ -1,2 +1,3 @@
 *.override.conf
+*.conf.generated
 volumes

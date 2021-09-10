@@ -1,16 +1,7 @@
 #!/usr/bin/env bash
 
-SCRIPT=`realpath $0`
-SCRIPTPATH=`dirname $SCRIPT`
-PARENTPATH=`dirname $SCRIPTPATH`
-
 # include init
-source $PARENTPATH/.common-init.sh
-
-# to abort the script if any command returns a failure (nonzero) status
-set -e
-# script will exit with error when variable not set
-set -u # or set -o nounset
+source $(realpath $0 | xargs dirname | xargs dirname)/.common-init.sh
 
 function post_docker_start() {
     local container="$1"
@@ -52,8 +43,6 @@ chpasswd)
 *)
     # include common operations
     source $PARENTPATH/.common-operations.sh
-    echo -e "\n----------------------------------------"
-    exit 2
     ;;
 esac
 exit 0
