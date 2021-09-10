@@ -18,6 +18,7 @@ function docker_create() {
         $VOLUME_STR \
         $PORT_STR \
         $SECRET_STR \
+        $DNS_STR \
         $IMAGE \
         $COMMAND_STR
 }
@@ -341,6 +342,8 @@ function read_conf_file() {
         result=$(read_file "--volume" $conf_path)
     elif [[ $filename =~ ^link\. ]]; then
         result=$(read_file "--link" $conf_path)
+    elif [[ $filename =~ ^dns\. ]]; then
+        result=$(read_file "--dns" $conf_path)
     else
         result=$(read_file "" $conf_path)
     fi
@@ -433,6 +436,12 @@ function load_command() {
     echo "COMMAND_STR: $COMMAND_STR"
 }
 
+function load_dns() {
+    DNS_STR=$(read_conf $DNS_FILE $DNS_OVERRIDE_FILE)
+    DNS_STR=$(echo $DNS_STR | envsubst)
+    echo "DNS_STR: $DNS_STR"
+}
+
 function load_env() {
     ENV_STR=$(get_conf_file_arg "--env-file" "$ENV_FILE" "$ENV_OVERRIDE_FILE")
     echo "ENV_STR: $ENV_STR"
@@ -461,6 +470,7 @@ function load_all() {
     load_link
     load_volume
     load_command
+    load_dns
     load_env
     load_label
     load_secret

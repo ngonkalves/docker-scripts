@@ -54,3 +54,6 @@ VOLUME_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename volume)
 
 COMMAND_FILE=$CURRENT_DIR/$(create_conf_filename command)
 COMMAND_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename command)
+
+DNS_FILE=$CURRENT_DIR/$(create_conf_filename dns)
+DNS_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename dns)
