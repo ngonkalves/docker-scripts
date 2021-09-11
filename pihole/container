@@ -15,14 +15,15 @@ function post_docker_start() {
             else
                 echo -e "\nAdmin webpage: http://${ServerIP}/admin/"
             fi
-            exit 0
+            #exit 0
+            break
         else
             sleep 3
             printf '.'
         fi
     done;
     echo -e "\nTimed out waiting for Pi-hole start, check your container logs for more info (\`$0 log\`)"
-    exit 1
+    #exit 1
 }
 
 # due to set -u we need to define a default value of empty when no arguments are passed

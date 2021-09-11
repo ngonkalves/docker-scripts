@@ -31,10 +31,11 @@ function docker_start() {
     docker_create_network
     docker start $container
     printf '\nStarting up %s container\n\n' "$container"
-    docker_logf $container
 
     # call post  function
     [ $(type -t post_docker_start)"" = "function" ] && post_docker_start $container
+
+    docker_logf $container
 }
 
 function docker_stop() {
