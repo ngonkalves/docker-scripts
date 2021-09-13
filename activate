@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+PREFIX="ds"
+ENV_NAME="docker-scripts"
+
+function ds-container() {
+    local option="${1-}"
+    case "$option" in
+    create)
+        local new_container="${2}"
+        if [ ! "$new_container" = "" ]; then
+            \cp -R $SCRIPT_DIR/.skel $SCRIPT_DIR/$new_container
+        fi
+    ;;
+    *)
+        echo "Unknown option"
+    esac
+}
+
+deactivate () {
+    if [ -n "${_DS_SCRIPTS_OLD_VIRTUAL_PS1:-}" ] ; then
+        PS1="${_DS_SCRIPTS_OLD_VIRTUAL_PS1:-}"
+        export PS1
+        unset _DS_SCRIPTS_OLD_VIRTUAL_PS1
+    fi
+
+    if [ -n "${_DS_SCRIPTS_VIRTUAL_ENV:-}" ]; then
+        unset -f ds-container
+
+        echo "::::::::::::::::::::::::::::::::::::"
+        echo " Removing container shortcuts "
+        echo "::::::::::::::::::::::::::::::::::::"
+
+        for folder in $(find $SCRIPT_DIR/* -maxdepth 0 -type d ); do
+            func_name=${folder##*/}
+            func_fullname="$PREFIX-$func_name"
+            echo "${func_fullname}"
+            # destruct function
+            unset -f "${func_fullname}"
+        done;
+    fi
+
+    unset _DS_SCRIPTS_VIRTUAL_ENV
+    if [ ! "$1" = "nondestructive" ] ; then
+    # Self destruct!
+        unset -f deactivate
+    fi
+}
+
+
+
+# unset irrelevant variables
+deactivate nondestructive
+
+_DS_SCRIPTS_VIRTUAL_ENV="$SCRIPT_DIR"
+export _DS_SCRIPTS_VIRTUAL_ENV
+
+echo "::::::::::::::::::::::::::::::::::::"
+echo " Defining container shortcuts "
+echo "::::::::::::::::::::::::::::::::::::"
+
+for folder in $(find $SCRIPT_DIR/* -maxdepth 0 -type d ); do
+    func_name=${folder##*/}
+    func_fullname="$PREFIX-$func_name"
+    echo "${func_fullname}"
+    # declare bash function
+    eval "${func_fullname}() { $folder/container \$@; }"
+done;
+
+if [ -z "${_DS_SCRIPTS_VIRTUAL_ENV_DISABLE_PROMPT:-}" ] ; then
+    _DS_SCRIPTS_OLD_VIRTUAL_PS1="${PS1:-}"
+    if [ "x($ENV_NAME) " != x ] ; then
+        PS1="($ENV_NAME) ${PS1:-}"
+    else
+        if [ "`basename \"$_DS_SCRIPTS_VIRTUAL_ENV\"`" = "__" ] ; then
+            # special case for Aspen magic directories
+            # see http://www.zetadev.com/software/aspen/
+            PS1="[`basename \`dirname \"$_DS_SCRIPTS_VIRTUAL_ENV\"\``] $PS1"
+        else
+            PS1="(`basename \"$_DS_SCRIPTS_VIRTUAL_ENV\"`)$PS1"
+        fi
+    fi
+    export PS1
+fi
+
