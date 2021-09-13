@@ -11,16 +11,17 @@ function docker_create() {
 
     docker create \
         --name="$container" \
-        $OPTION_STR \
-        $NET_JOIN_STR \
-        $ENV_STR \
-        $LABEL_STR \
-        $VOLUME_STR \
-        $PORT_STR \
-        $SECRET_STR \
-        $DNS_STR \
+        $OPTION_ARG \
+        $USER_ARG \
+        $NET_JOIN_ARG \
+        $ENV_ARG \
+        $LABEL_ARG \
+        $VOLUME_ARG \
+        $PORT_ARG \
+        $SECRET_ARG \
+        $DNS_ARG \
         $IMAGE \
-        $COMMAND_STR
+        $COMMAND_ARG
 }
 
 function docker_start() {
@@ -396,75 +397,82 @@ function get_conf_file_arg() {
 
 # load params
 function load_option() {
-    OPTION_STR=$(read_conf $OPTION_FILE $OPTION_OVERRIDE_FILE)
-    OPTION_STR=$(echo $OPTION_STR | envsubst)
-    echo "OPTION_STR: $OPTION_STR"
+    OPTION_ARG=$(read_conf $OPTION_FILE $OPTION_OVERRIDE_FILE)
+    OPTION_ARG=$(echo $OPTION_ARG | envsubst)
+    echo "OPTION_ARG: $OPTION_ARG"
+}
+
+function load_user() {
+    USER_ARG=$(read_conf $USER_FILE $USER_OVERRIDE_FILE)
+    USER_ARG=$(echo $USER_ARG | envsubst)
+    echo "USER_ARG: $USER_ARG"
 }
 
 function load_port() {
-    PORT_STR=$(read_conf $PORT_FILE $PORT_OVERRIDE_FILE)
-    PORT_STR=$(echo $PORT_STR | envsubst)
-    echo "PORT_STR: $PORT_STR"
+    PORT_ARG=$(read_conf $PORT_FILE $PORT_OVERRIDE_FILE)
+    PORT_ARG=$(echo $PORT_ARG | envsubst)
+    echo "PORT_ARG: $PORT_ARG"
 }
 
 function load_net_create() {
-    NET_CREATE_STR=$(read_conf $NET_CREATE_FILE $NET_CREATE_OVERRIDE_FILE)
-    NET_CREATE_STR=$(echo $NET_CREATE_STR | envsubst)
-    echo "NET_CREATE_STR: $NET_CREATE_STR"
+    NET_CREATE_ARG=$(read_conf $NET_CREATE_FILE $NET_CREATE_OVERRIDE_FILE)
+    NET_CREATE_ARG=$(echo $NET_CREATE_ARG | envsubst)
+    echo "NET_CREATE_ARG: $NET_CREATE_ARG"
 }
 
 function load_net_join() {
-    NET_JOIN_STR=$(read_conf $NET_JOIN_FILE $NET_JOIN_OVERRIDE_FILE)
-    NET_JOIN_STR=$(echo $NET_JOIN_STR | envsubst)
-    echo "NET_JOIN_STR: $NET_JOIN_STR"
+    NET_JOIN_ARG=$(read_conf $NET_JOIN_FILE $NET_JOIN_OVERRIDE_FILE)
+    NET_JOIN_ARG=$(echo $NET_JOIN_ARG | envsubst)
+    echo "NET_JOIN_ARG: $NET_JOIN_ARG"
 }
 
 function load_link() {
-    LINK_STR=$(read_conf $LINK_FILE $LINK_OVERRIDE_FILE)
-    LINK_STR=$(echo $LINK_STR | envsubst)
-    echo "LINK_STR: $LINK_STR"
+    LINK_ARG=$(read_conf $LINK_FILE $LINK_OVERRIDE_FILE)
+    LINK_ARG=$(echo $LINK_ARG | envsubst)
+    echo "LINK_ARG: $LINK_ARG"
 }
 
 function load_volume() {
-    VOLUME_STR=$(read_conf $VOLUME_FILE $VOLUME_OVERRIDE_FILE)
-    VOLUME_STR=$(echo $VOLUME_STR | envsubst)
-    echo "VOLUME_STR: $VOLUME_STR"
+    VOLUME_ARG=$(read_conf $VOLUME_FILE $VOLUME_OVERRIDE_FILE)
+    VOLUME_ARG=$(echo $VOLUME_ARG | envsubst)
+    echo "VOLUME_ARG: $VOLUME_ARG"
 }
 
 function load_command() {
-    COMMAND_STR=$(read_conf $COMMAND_FILE $COMMAND_OVERRIDE_FILE)
-    COMMAND_STR=$(echo $COMMAND_STR | envsubst)
-    echo "COMMAND_STR: $COMMAND_STR"
+    COMMAND_ARG=$(read_conf $COMMAND_FILE $COMMAND_OVERRIDE_FILE)
+    COMMAND_ARG=$(echo $COMMAND_ARG | envsubst)
+    echo "COMMAND_ARG: $COMMAND_ARG"
 }
 
 function load_dns() {
-    DNS_STR=$(read_conf $DNS_FILE $DNS_OVERRIDE_FILE)
-    DNS_STR=$(echo $DNS_STR | envsubst)
-    echo "DNS_STR: $DNS_STR"
+    DNS_ARG=$(read_conf $DNS_FILE $DNS_OVERRIDE_FILE)
+    DNS_ARG=$(echo $DNS_ARG | envsubst)
+    echo "DNS_ARG: $DNS_ARG"
 }
 
 function load_env() {
-    ENV_STR=$(get_conf_file_arg "--env-file" "$ENV_FILE" "$ENV_OVERRIDE_FILE")
-    echo "ENV_STR: $ENV_STR"
+    ENV_ARG=$(get_conf_file_arg "--env-file" "$ENV_FILE" "$ENV_OVERRIDE_FILE")
+    echo "ENV_ARG: $ENV_ARG"
 }
 
 function load_label() {
-    LABEL_STR=$(get_conf_file_arg "--label-file" "$LABEL_FILE" "$LABEL_OVERRIDE_FILE")
-    echo "LABEL_STR: $LABEL_STR"
+    LABEL_ARG=$(get_conf_file_arg "--label-file" "$LABEL_FILE" "$LABEL_OVERRIDE_FILE")
+    echo "LABEL_ARG: $LABEL_ARG"
 }
 
 function load_secret() {
-    SECRET_STR=""
+    SECRET_ARG=""
     for file in $(find $CURRENT_DIR -maxdepth 1 -type f -name 'secret_*'); do
         secret_name=${file##*/}
         secret_name=${secret_name/secret_/}
-        SECRET_STR="$SECRET_STR--volume ${file}:/run/secrets/$secret_name "
+        SECRET_ARG="$SECRET_ARG--volume ${file}:/run/secrets/$secret_name "
     done
-    echo "SECRET_STR: $SECRET_STR"
+    echo "SECRET_ARG: $SECRET_ARG"
 }
 
 function load_all() {
     load_option
+    load_user
     load_port
     load_net_create
     load_net_join

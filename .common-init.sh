@@ -37,6 +37,9 @@ LABEL_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename label)
 OPTION_FILE=$CURRENT_DIR/$(create_conf_filename option)
 OPTION_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename option)
 
+USER_FILE=$CURRENT_DIR/$(create_conf_filename user)
+USER_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename user)
+
 PORT_FILE=$CURRENT_DIR/$(create_conf_filename port)
 PORT_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename port)
 
