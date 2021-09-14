@@ -374,6 +374,15 @@ function read_file() {
     echo "$result"
 }
 
+function remove-empty-config() {
+    local path="$1"
+    for file in $(find $path -maxdepth 1 -type f -name '*.conf'); do
+        if [ $(grep -v -E '^([ ]*#|[ ]*$)' $file | wc -l) = "0" ]; then
+            \rm -i $file
+        fi
+    done;
+}
+
 # creates the option to pass a file to docker
 function get_conf_file_arg() {
     local prefix="$1"

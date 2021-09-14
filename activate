@@ -8,13 +8,20 @@ function ds-container() {
     local option="${1-}"
     case "$option" in
     create)
-        local new_container="${2}"
-        if [ ! "$new_container" = "" ]; then
-            \cp -R $SCRIPT_DIR/.skel $SCRIPT_DIR/$new_container
+        local configuration_name="${2}"
+        if [ ! "$configuration_name" = "" ]; then
+            \cp -R $SCRIPT_DIR/.skel $SCRIPT_DIR/$configuration_name
+        fi
+    ;;
+    remove)
+        local configuration_name="${2}"
+        if [ -e "$configuration_name" ]; then
+            echo "Removing $SCRIPT_DIR/$configuration_name"
+            \rm -rfI $SCRIPT_DIR/$configuration_name
         fi
     ;;
     *)
-        echo "Unknown option"
+        echo "ds-container [create | remove] CONFIGURATION_NAME"
     esac
 }
 

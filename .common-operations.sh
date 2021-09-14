@@ -37,6 +37,9 @@ remove-config)
 create-folder-structure)
     create_folder_structure
     ;;
+remove-empty-config)
+    remove-empty-config "$CURRENT_DIR"
+    ;;
 terminal|console)
     docker_exec_terminal $CONTAINER
     ;;
@@ -62,7 +65,7 @@ status)
                              remove
                              create | recreate
                              create-network | remove-network
-                             remove-config
+                             remove-config | remove-empty-config
                              terminal | console
                              pull
                              cp [source_path] [target_path]
