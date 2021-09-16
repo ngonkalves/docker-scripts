@@ -374,6 +374,26 @@ function read_file() {
     echo "$result"
 }
 
+function read_conf_variables() {
+    local file_path="$1"
+    local append_vars="${@:2}"
+    if [ -e "$file_path" ]; then
+        readarray -t lines < "$file_path";
+        for line in "${lines[@]}"; do
+            [[ "$line" =~ ^([[:space:]]*|[[:space:]]*#.*)$ ]] && continue;
+            local varname="${line%%=*}"
+            if [ -n "${varname}" ]; then
+                printf '${%s} ' "${varname}";
+            fi
+        done;
+    fi
+    for var in "${@:2}"; do
+        if [ -n "${var}" ]; then
+            printf '${%s} ' "${var}";
+        fi
+    done;
+}
+
 function remove-empty-config() {
     local path="$1"
     for file in $(find $path -maxdepth 1 -type f -name '*.conf'); do
@@ -392,9 +412,9 @@ function get_conf_file_arg() {
     local override_conf_path_gen="$override_conf_path.generated"
     local result=""
     # do variable substitution on file
-    [ -e $conf_path ] && \grep "\\$" $conf_path > /dev/null 2>&1 && envsubst < $conf_path > $conf_path_gen && conf_path=$conf_path_gen
+    [ -e $conf_path ] && \grep "\\$" $conf_path > /dev/null 2>&1 && envsubst "$DEFINED_VARS" < $conf_path > $conf_path_gen && conf_path=$conf_path_gen
 
-    [ -e $override_conf_path ] && \grep "\\$" $override_conf_path > /dev/null 2>&1 && envsubst < $override_conf_path > $override_conf_path_gen && override_conf_path=$override_conf_path_gen
+    [ -e $override_conf_path ] && \grep "\\$" $override_conf_path > /dev/null 2>&1 && envsubst "$DEFINED_VARS" < $override_conf_path > $override_conf_path_gen && override_conf_path=$override_conf_path_gen
 
     # defining result depending on existing files
     [ -e $conf_path ] && result="$prefix $conf_path"
@@ -405,57 +425,65 @@ function get_conf_file_arg() {
 }
 
 # load params
+function load_defined_vars() {
+    # define which variable will be available for replace with envsubst command
+    DEFINED_VARS="\${CONTAINER} \${CONTAINER_PREFIX} \${CURRENT_DIR} \${CURRENT_DIR_NAME}"
+    [ -e $VAR_FILE ] && DEFINED_VARS="$DEFINED_VARS $(read_conf_variables $VAR_FILE)"
+    [ -e $VAR_OVERRIDE_FILE ] && DEFINED_VARS="$DEFINED_VARS $(read_conf_variables $VAR_OVERRIDE_FILE)"
+    echo "DEFINED_VARS: $DEFINED_VARS"
+}
+
 function load_option() {
     OPTION_ARG=$(read_conf $OPTION_FILE $OPTION_OVERRIDE_FILE)
-    OPTION_ARG=$(echo $OPTION_ARG | envsubst)
+    OPTION_ARG=$(echo $OPTION_ARG | envsubst "$DEFINED_VARS")
     echo "OPTION_ARG: $OPTION_ARG"
 }
 
 function load_user() {
     USER_ARG=$(read_conf $USER_FILE $USER_OVERRIDE_FILE)
-    USER_ARG=$(echo $USER_ARG | envsubst)
+    USER_ARG=$(echo $USER_ARG | envsubst "$DEFINED_VARS")
     echo "USER_ARG: $USER_ARG"
 }
 
 function load_port() {
     PORT_ARG=$(read_conf $PORT_FILE $PORT_OVERRIDE_FILE)
-    PORT_ARG=$(echo $PORT_ARG | envsubst)
+    PORT_ARG=$(echo $PORT_ARG | envsubst "$DEFINED_VARS")
     echo "PORT_ARG: $PORT_ARG"
 }
 
 function load_net_create() {
     NET_CREATE_ARG=$(read_conf $NET_CREATE_FILE $NET_CREATE_OVERRIDE_FILE)
-    NET_CREATE_ARG=$(echo $NET_CREATE_ARG | envsubst)
+    NET_CREATE_ARG=$(echo $NET_CREATE_ARG | envsubst "$DEFINED_VARS")
     echo "NET_CREATE_ARG: $NET_CREATE_ARG"
 }
 
 function load_net_join() {
     NET_JOIN_ARG=$(read_conf $NET_JOIN_FILE $NET_JOIN_OVERRIDE_FILE)
-    NET_JOIN_ARG=$(echo $NET_JOIN_ARG | envsubst)
+    NET_JOIN_ARG=$(echo $NET_JOIN_ARG | envsubst "$DEFINED_VARS")
     echo "NET_JOIN_ARG: $NET_JOIN_ARG"
 }
 
 function load_link() {
     LINK_ARG=$(read_conf $LINK_FILE $LINK_OVERRIDE_FILE)
-    LINK_ARG=$(echo $LINK_ARG | envsubst)
+    LINK_ARG=$(echo $LINK_ARG | envsubst "$DEFINED_VARS")
     echo "LINK_ARG: $LINK_ARG"
 }
 
 function load_volume() {
     VOLUME_ARG=$(read_conf $VOLUME_FILE $VOLUME_OVERRIDE_FILE)
-    VOLUME_ARG=$(echo $VOLUME_ARG | envsubst)
+    VOLUME_ARG=$(echo $VOLUME_ARG | envsubst "$DEFINED_VARS")
     echo "VOLUME_ARG: $VOLUME_ARG"
 }
 
 function load_command() {
     COMMAND_ARG=$(read_conf $COMMAND_FILE $COMMAND_OVERRIDE_FILE)
-    COMMAND_ARG=$(echo $COMMAND_ARG | envsubst)
+    COMMAND_ARG=$(echo $COMMAND_ARG | envsubst "$DEFINED_VARS")
     echo "COMMAND_ARG: $COMMAND_ARG"
 }
 
 function load_dns() {
     DNS_ARG=$(read_conf $DNS_FILE $DNS_OVERRIDE_FILE)
-    DNS_ARG=$(echo $DNS_ARG | envsubst)
+    DNS_ARG=$(echo $DNS_ARG | envsubst "$DEFINED_VARS")
     echo "DNS_ARG: $DNS_ARG"
 }
 
@@ -480,6 +508,7 @@ function load_secret() {
 }
 
 function load_all() {
+    load_defined_vars
     load_option
     load_user
     load_port
