@@ -430,6 +430,8 @@ function load_defined_vars() {
     DEFINED_VARS="\${CONTAINER} \${CONTAINER_PREFIX} \${CURRENT_DIR} \${CURRENT_DIR_NAME}"
     [ -e $VAR_FILE ] && DEFINED_VARS="$DEFINED_VARS $(read_conf_variables $VAR_FILE)"
     [ -e $VAR_OVERRIDE_FILE ] && DEFINED_VARS="$DEFINED_VARS $(read_conf_variables $VAR_OVERRIDE_FILE)"
+    # remove duplicates
+    DEFINED_VARS=$(echo "$DEFINED_VARS" | tr ' ' '\n' | sort | uniq | tr '\n' ' ')
     echo "DEFINED_VARS: $DEFINED_VARS"
 }
 
