@@ -115,7 +115,8 @@ function docker_create_network() {
             [[ "$line" =~ ^([[:space:]]*|[[:space:]]*#.*)$ ]] && continue
             local network="${line##* }"
             if [[ ! ${network-} == "" ]]; then
-                create_network_if_not_exists "$line"
+                network=$(echo $network | envsubst "$DEFINED_VARS")
+                create_network_if_not_exists "$network"
             fi
         done
     fi
@@ -137,6 +138,7 @@ function docker_remove_network() {
             [[ "$line" =~ ^([[:space:]]*|[[:space:]]*#.*)$ ]] && continue
             local network="${line##* }"
             if [[ ! ${network-} == "" ]]; then
+                network=$(echo $network | envsubst "$DEFINED_VARS")
                 remove_network_if_exists "$network"
             fi
         done
