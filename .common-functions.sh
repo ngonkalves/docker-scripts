@@ -346,6 +346,8 @@ function read_conf_file() {
         result=$(read_file "--link" $conf_path)
     elif [[ $filename =~ ^dns\. ]]; then
         result=$(read_file "--dns" $conf_path)
+    elif [[ $filename =~ ^user\. ]]; then
+        result=$(read_file "--user" $conf_path)
     else
         result=$(read_file "" $conf_path)
     fi
