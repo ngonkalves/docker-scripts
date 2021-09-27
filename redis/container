@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# include init
+source $(realpath $0 | xargs dirname | xargs dirname)/.common-init.sh
+
+# due to set -u we need to define a default value of empty when no arguments are passed
+# https://stackoverflow.com/questions/43707685/set-u-nounset-vs-checking-whether-i-have-arguments
+case "${1-}" in
+###########################################################
+# PUT HERE SPECIFIC CONTAINER FUNCTIONALITY - start       #
+###########################################################
+
+
+###########################################################
+# PUT HERE SPECIFIC CONTAINER FUNCTIONALITY - end         #
+###########################################################
+*)
+    # include common operations
+    source $PARENTPATH/.common-operations.sh
+    ;;
+esac
+exit 0
