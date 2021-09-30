@@ -12,6 +12,7 @@ function docker_create() {
     docker create \
         --name="$container" \
         $OPTION_ARG \
+        $WORK_DIR_ARG \
         $USER_ARG \
         $NET_JOIN_ARG \
         $ENV_ARG \
@@ -412,8 +413,10 @@ function get_conf_file_arg() {
     local prefix="$1"
     local conf_path="$2"
     local override_conf_path="$3"
-    local conf_path_gen="$conf_path.generated"
-    local override_conf_path_gen="$override_conf_path.generated"
+    #local conf_path_gen="${conf_path%/*}/.${conf_path##*/}.generated"
+    #local override_conf_path_gen="${override_conf_path%/*}/.${override_conf_path##*/}.generated"
+    local conf_path_gen="${conf_path}.generated"
+    local override_conf_path_gen="${override_conf_path}.generated"
     local result=""
     # do variable substitution on file
     [ -e $conf_path ] && \grep "\\$" $conf_path > /dev/null 2>&1 && envsubst "$DEFINED_VARS" < $conf_path > $conf_path_gen && conf_path=$conf_path_gen
@@ -431,7 +434,7 @@ function get_conf_file_arg() {
 # load params
 function load_defined_vars() {
     # define which variable will be available for replace with envsubst command
-    DEFINED_VARS="\${CONTAINER} \${CONTAINER_PREFIX} \${CURRENT_DIR} \${CURRENT_DIR_NAME}"
+    DEFINED_VARS="\${PARENTPATH} \${CONTAINER} \${CONTAINER_PREFIX} \${CURRENT_DIR} \${CURRENT_DIR_NAME}"
     [ -e $VAR_FILE ] && DEFINED_VARS="$DEFINED_VARS $(read_conf_variables $VAR_FILE)"
     [ -e $VAR_OVERRIDE_FILE ] && DEFINED_VARS="$DEFINED_VARS $(read_conf_variables $VAR_OVERRIDE_FILE)"
     # remove duplicates
@@ -443,6 +446,14 @@ function load_option() {
     OPTION_ARG=$(read_conf $OPTION_FILE $OPTION_OVERRIDE_FILE)
     OPTION_ARG=$(echo $OPTION_ARG | envsubst "$DEFINED_VARS")
     echo "OPTION_ARG: $OPTION_ARG"
+}
+
+function load_workdir() {
+    WORK_DIR_ARG=""
+    if [ -n "${WORK_DIR-}" ]; then
+        WORK_DIR_ARG="--workdir ${WORK_DIR}"
+    fi
+    echo "WORK_DIR_ARG: $WORK_DIR_ARG"
 }
 
 function load_user() {
@@ -516,6 +527,7 @@ function load_secret() {
 function load_all() {
     load_defined_vars
     load_option
+    load_workdir
     load_user
     load_port
     load_net_create

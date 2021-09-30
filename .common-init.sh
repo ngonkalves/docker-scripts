@@ -9,6 +9,8 @@ CURRENT_DIR=$(realpath $0 | xargs dirname)
 
 PARENTPATH=`dirname $CURRENT_DIR`
 
+DIR_BASE=`dirname $CURRENT_DIR`
+
 CURRENT_DIR_NAME=`basename $CURRENT_DIR`
 
 # add docker container prefix
@@ -17,6 +19,14 @@ CONTAINER_PREFIX="ds"
 CONTAINER="${CONTAINER_PREFIX}-${CURRENT_DIR_NAME}"
 
 source $PARENTPATH/.common-functions.sh
+
+# define global var file paths
+FILE_GLOBAL_VAR=$DIR_BASE/$(create_conf_filename var)
+FILE_GLOBAL_VAR_OVERRIDE=$DIR_BASE/$(create_conf_override_filename var)
+
+# load file with variables if exist
+[ -e $FILE_GLOBAL_VAR ] && source $FILE_GLOBAL_VAR
+[ -e $FILE_GLOBAL_VAR_OVERRIDE ] && source $FILE_GLOBAL_VAR_OVERRIDE
 
 # define file paths
 VAR_FILE=$CURRENT_DIR/$(create_conf_filename var)
