@@ -12,7 +12,8 @@ function ds-container() {
         if [ ! "$configuration_name" = "" ] && [ ! -e "$SCRIPT_DIR/$configuration_name" ]; then
             # copy all files except files with extension .template
             \cp -R $SCRIPT_DIR/.skel $SCRIPT_DIR/$configuration_name
-            \rm $SCRIPT_DIR/$configuration_name/*.template
+            # hide stderr
+            \rm $SCRIPT_DIR/$configuration_name/*.template 2> /dev/null
         fi
     ;;
     remove)
