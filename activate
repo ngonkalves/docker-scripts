@@ -9,8 +9,10 @@ function ds-container() {
     case "$option" in
     create)
         local configuration_name="${2}"
-        if [ ! "$configuration_name" = "" ]; then
+        if [ ! "$configuration_name" = "" ] && [ ! -e "$SCRIPT_DIR/$configuration_name" ]; then
+            # copy all files except files with extension .template
             \cp -R $SCRIPT_DIR/.skel $SCRIPT_DIR/$configuration_name
+            \rm $SCRIPT_DIR/$configuration_name/*.template
         fi
     ;;
     remove)

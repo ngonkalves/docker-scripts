@@ -1,61 +1,61 @@
 
 
 case "${1-}" in
-create|build)
+c|create|build)
     docker_create $CONTAINER
     ;;
-start)
+s|start)
     docker_start $CONTAINER
     ;;
-stop)
+ss|stop)
     docker_stop $CONTAINER
     ;;
-restart)
+rs|restart)
     docker_restart $CONTAINER
     ;;
-remove)
+rm|remove)
     docker_remove $CONTAINER
     ;;
-pull)
+p|pull)
     docker_pull $IMAGE
     ;;
-cp)
+cp|copy)
     docker_cp $CONTAINER $2 $3
     ;;
-recreate|rebuild)
+re|recreate|rebuild)
     docker_recreate $CONTAINER
     ;;
-create-network)
+cn|create-network)
     docker_create_network
     ;;
-remove-network)
+rmn|remove-network)
     docker_remove_network
     ;;
-remove-config)
+rmc|remove-config)
     remove_config $CONTAINER
     ;;
 create-folder-structure)
     create_folder_structure
     ;;
-remove-empty-config)
+rmec|remove-empty-config)
     remove-empty-config "$CURRENT_DIR"
     ;;
-terminal|console)
+t|terminal|console)
     docker_exec_terminal $CONTAINER
     ;;
-uname)
+u|uname)
     docker_exec_uname $CONTAINER
     ;;
-log)
+l|log)
     docker_log $CONTAINER
     ;;
-logf)
+lf|logf)
     docker_logf $CONTAINER
     ;;
-inspect)
+i|inspect)
     docker_inspect $CONTAINER
     ;;
-status)
+s|status)
     docker_ps $CONTAINER
     ;;
 *)

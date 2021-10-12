@@ -17,6 +17,7 @@ CURRENT_DIR_NAME=`basename $CURRENT_DIR`
 CONTAINER_PREFIX="ds"
 
 CONTAINER="${CONTAINER_PREFIX}-${CURRENT_DIR_NAME}"
+CONTAINER_SIMPLE_NAME="${CURRENT_DIR_NAME}"
 
 source $PARENTPATH/.common-functions.sh
 
@@ -28,6 +29,9 @@ FILE_GLOBAL_VAR_OVERRIDE=$DIR_BASE/$(create_conf_override_filename var)
 [ -e $FILE_GLOBAL_VAR ] && source $FILE_GLOBAL_VAR
 [ -e $FILE_GLOBAL_VAR_OVERRIDE ] && source $FILE_GLOBAL_VAR_OVERRIDE
 
+[ -z "${GLOBAL_USER-}" ] && echo "Variable GLOBAL_USER not set in $FILE_GLOBAL_VAR" && exit 1
+[ -z "${GLOBAL_GROUP-}" ] && echo "Variable GLOBAL_GROUP not set in $FILE_GLOBAL_VAR" && exit 1
+
 # define file paths
 VAR_FILE=$CURRENT_DIR/$(create_conf_filename var)
 VAR_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename var)
@@ -37,6 +41,11 @@ VAR_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename var)
 [ -e $VAR_OVERRIDE_FILE ] && source $VAR_OVERRIDE_FILE
 
 [ ! -e $VAR_FILE ] && [ ! -e $VAR_OVERRIDE_FILE ] && echo -e "Var files don't exist (quitting): ${VAR_FILE##*/} | ${VAR_OVERRIDE_FILE##*/}" && exit 1
+
+# get USER_ID
+USER_ID=$(id -u $GLOBAL_USER)
+# get GROUP_ID
+GROUP_ID=$(getent group $GLOBAL_GROUP | cut -d: -f3)
 
 ENV_FILE=$CURRENT_DIR/$(create_conf_filename env)
 ENV_OVERRIDE_FILE=$CURRENT_DIR/$(create_conf_override_filename env)
