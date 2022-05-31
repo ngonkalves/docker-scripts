@@ -114,9 +114,9 @@ function docker_create_network() {
             # Skip lines starting with sharp
             # or lines containing only space or empty lines
             [[ "$line" =~ ^([[:space:]]*|[[:space:]]*#.*)$ ]] && continue
-            local network="${line##* }"
+            local network="${line%% *}"
             if [[ ! ${network-} == "" ]]; then
-                network=$(echo $network | envsubst "$DEFINED_VARS")
+                network=$(echo $line | envsubst "$DEFINED_VARS")
                 create_network_if_not_exists "$network"
             fi
         done
@@ -213,7 +213,7 @@ function network_exists() {
 }
 
 function create_network() {
-    local num_created_networks=$(docker network create $@ | wc -l)
+    local num_created_networks=$(docker network create $1 | wc -l)
     [[ $num_created_networks == "1" ]] && echo "true" || echo "false"
 }
 
@@ -224,7 +224,7 @@ function remove_network() {
 }
 
 function create_network_if_not_exists() {
-    local network="${1##* }"
+    local network="${1%% *}"
     local exists=$(network_exists $network)
     if [[ $exists == "true" ]]; then
         echo "Network $network already exist, skipping..."
@@ -232,7 +232,7 @@ function create_network_if_not_exists() {
         echo -e "---------------------------------\n"
         echo -e "Creating network $network\n"
         echo -e "---------------------------------\n"
-        local created=$(create_network $@)
+        local created=$(create_network "$1")
         if [[ $created == "true" ]]; then
             echo "Network $network created successfully"
         else
