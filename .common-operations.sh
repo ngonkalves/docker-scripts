@@ -25,6 +25,11 @@ cp|copy)
 re|recreate|rebuild)
     docker_recreate $CONTAINER
     ;;
+run)
+    # remove run from arguments
+    shift
+    docker_run $IMAGE $@
+    ;;
 cn|create-network)
     docker_create_network
     ;;

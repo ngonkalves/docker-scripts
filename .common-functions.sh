@@ -9,6 +9,14 @@ function docker_create() {
 
     load_all
 
+    local newImage="$IMAGE"
+
+    if [ -e "$CURRENT_DIR/Dockerfile" ]; then
+        echo -e "Dockerfile found, buiding image\n"
+        newImage="local-$IMAGE"
+        docker build -f "$CURRENT_DIR/Dockerfile" . --tag "$newImage"
+    fi
+
     docker create \
         --name="$container" \
         $OPTION_ARG \
@@ -21,7 +29,7 @@ function docker_create() {
         $PORT_ARG \
         $SECRET_ARG \
         $DNS_ARG \
-        $IMAGE \
+        $newImage \
         $COMMAND_ARG
 }
 
@@ -66,11 +74,15 @@ function docker_remove() {
 }
 
 function docker_pull() {
-    local image="$1"
-    echo -e "---------------------------------\n"
-    echo -e "Pulling container image $IMAGE\n"
-    echo -e "---------------------------------\n"
-    docker pull $IMAGE
+    if [ -e "$CURRENT_DIR/Dockerfile" ]; then
+        echo -e "Dockerfile found, skipping docker pull"
+    else
+        local image="$1"
+        echo -e "---------------------------------\n"
+        echo -e "Pulling container image $IMAGE\n"
+        echo -e "---------------------------------\n"
+        docker pull $IMAGE
+    fi
 }
 
 function docker_recreate() {
@@ -192,6 +204,14 @@ function docker_ps() {
     echo -e "     Status: $container\n  "
     echo -e "---------------------------------\n"
     docker ps -a -f name=$container
+}
+
+function docker_run() {
+    local args="$@"
+    echo -e "---------------------------------\n"
+    echo -e "     Run: docker run --rm $args \n  "
+    echo -e "---------------------------------\n"
+    docker run --rm $args
 }
 
 function container_exists() {
@@ -417,6 +437,7 @@ function get_conf_file_arg() {
     #local override_conf_path_gen="${override_conf_path%/*}/.${override_conf_path##*/}.generated"
     local conf_path_gen="${conf_path}.generated"
     local override_conf_path_gen="${override_conf_path}.generated"
+    local conf_path_merged_gen="${conf_path}.merged.generated"
     local result=""
     # do variable substitution on file
     [ -e $conf_path ] && \grep "\\$" $conf_path > /dev/null 2>&1 && envsubst "$DEFINED_VARS" < $conf_path > $conf_path_gen && conf_path=$conf_path_gen
@@ -424,9 +445,17 @@ function get_conf_file_arg() {
     [ -e $override_conf_path ] && \grep "\\$" $override_conf_path > /dev/null 2>&1 && envsubst "$DEFINED_VARS" < $override_conf_path > $override_conf_path_gen && override_conf_path=$override_conf_path_gen
 
     # defining result depending on existing files
+    #[ -e $conf_path ] && result="$prefix $conf_path"
+
+    #[ -e $override_conf_path ] && result="$result $prefix $override_conf_path"
+
+    # defining result depending on existing files
     [ -e $conf_path ] && result="$prefix $conf_path"
 
     [ -e $override_conf_path ] && result="$result $prefix $override_conf_path"
+
+    # merge both files properties removing duplicates taking the override file as master
+    [ -e $conf_path ] && [ -e $override_conf_path ] && awk -F= '!a[$1]++' "$override_conf_path" "$conf_path" > $conf_path_merged_gen && result="$prefix $conf_path_merged_gen"
 
     echo "$result"
 }
