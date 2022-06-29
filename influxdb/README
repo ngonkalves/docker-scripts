@@ -1,0 +1,19 @@
+Manual Setup
+
+If your InfluxDB container is running locally (or on a host exposed to the network), you can perform initial setup from outside the container using either the UI or the influx CLI. Find more about setting up InfluxDB using these methods here.
+
+It's also possible to perform manual setup from within the container using docker exec. For example, if you start the container:
+
+$ docker run -d -p 8086:8086 \
+      --name influxdb2 \
+      -v $PWD:/var/lib/influxdb2 \
+      influxdb:2.0
+
+You can then run the influx client in the container:
+
+$ docker exec influxdb2 influx setup \
+      --username $USERNAME \
+      --password $PASSWORD \
+      --org $ORGANIZATION \
+      --bucket $BUCKET
+
