@@ -18,11 +18,12 @@ RUN \
     npm install -no-cache node-red-dashboard && \
     npm install -no-cache node-red-node-tail && \
     npm install -no-cache node-red-node-base64 && \
-    npm install -no-cache node-red-contrib-multipart-stream-decoder && \
     #npm install -no-cache node-red-node-rbe && \
     #npm install -no-cache node-red-node-ui-table && \
     # extensions
     npm install -no-cache node-red-contrib-home-assistant-websocket && \
     npm install -no-cache node-red-contrib-telegrambot && \
+    #npm install -no-cache node-red-contrib-image-tools && \
+    npm install -no-cache node-red-contrib-image-output && \
     npm install -no-cache node-red-contrib-influxdb 
 
