@@ -1,3 +1,4 @@
 *.override.conf
 *.conf.generated
+*.conf.merged.generated
 volumes
