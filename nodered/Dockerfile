@@ -25,5 +25,6 @@ RUN \
     npm install -no-cache node-red-contrib-telegrambot && \
     #npm install -no-cache node-red-contrib-image-tools && \
     npm install -no-cache node-red-contrib-image-output && \
+    npm install -no-cache node-red-contrib-moment && \
     npm install -no-cache node-red-contrib-influxdb 
 
