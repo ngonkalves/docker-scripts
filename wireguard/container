@@ -13,7 +13,10 @@ users)
     echo -e "---------------------------------\n"
     echo -e "Execute command for container $CONTAINER\n"
     echo -e "---------------------------------\n"
-    docker exec -it $CONTAINER /app/show-peer ${PEERS/,/ }
+    for user in ${PEERS//,/ }; do
+        docker exec -it $CONTAINER /app/show-peer ${user}
+        echo -e "\n\n\n"
+    done
     exit $?
     ;;
 user)
