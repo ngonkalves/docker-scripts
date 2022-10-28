@@ -463,7 +463,7 @@ function get_conf_file_arg() {
 # load params
 function load_defined_vars() {
     # define which variable will be available for replace with envsubst command
-    DEFINED_VARS="\${PARENTPATH} \${CONTAINER} \${CONTAINER_SIMPLE_NAME} \${CONTAINER_PREFIX} \${CURRENT_DIR} \${CURRENT_DIR_NAME}"
+    DEFINED_VARS="\${PARENTPATH} \${CONTAINER} \${CONTAINER_SIMPLE_NAME} \${CONTAINER_PREFIX} \${CURRENT_DIR} \${CURRENT_DIR_NAME} \${USER_ID} \${GROUP_ID}"
 
     # global var files
     [ -e $FILE_GLOBAL_VAR ] && DEFINED_VARS="$DEFINED_VARS $(read_conf_variables $FILE_GLOBAL_VAR)"
